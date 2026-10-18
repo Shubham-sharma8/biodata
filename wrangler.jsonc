@@ -1,17 +1,38 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "biodata-cogify",
+  "account_id": "34f55fffa618d8ec831f8926c79a3575",
   "main": "src/worker.js",
   "compatibility_date": "2025-02-01",
   "compatibility_flags": ["nodejs_compat"],
-  "observability": {
-    "enabled": true
-  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"],
+    "not_found_handling": "single-page-application",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "single-page-application"
+    "run_worker_first": ["/api/*"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "BIODATA_BUCKET",
+      "bucket_name": "biodata"
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "biodata",
+      "database_id": "bb855f1e-d450-464d-b4da-f273c821288e",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "R2_BUCKET_NAME": "biodata",
+    "R2_ENDPOINT": "https://34f55fffa618d8ec831f8926c79a3575.r2.cloudflarestorage.com/biodata",
+    "DATABASE": "biodata",
+    "DATABASE_ID": "bb855f1e-d450-464d-b4da-f273c821288e"
+  },
+  "observability": {
+    "enabled": true
   }
 }

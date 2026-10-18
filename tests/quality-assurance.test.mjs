@@ -52,10 +52,14 @@ import {
 } from '../src/utils/cookies.js';
 import { SEO_LANDING_ROUTES } from '../src/seo/seoRouter.js';
 import {
+  R2_BUCKET_NAME,
+  D1_DATABASE_NAME,
+  D1_DATABASE_ID,
   extractSortableCandidateRecord,
   decodePdfBase64ToBuffer,
-  resolveMongoUri
-} from '../src/server/mongoArchive.js';
+  decodePhotoDataUrl,
+  buildBiodataR2Paths
+} from '../src/server/cloudflareArchive.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -734,8 +738,12 @@ test('QA-20: Global SEO/GEO files, compact index.html (< 1000 lines), lazy-loade
   );
 });
 
-// 21. MongoDB Atlas PDF Archiving, Sortable Candidate Schema, Worker Endpoint & Secret Protection
-test('QA-21: MongoDB Atlas PDF archiving extracts sortable candidate fields, decodes PDF binary, wires Worker /api/archive-download, and protects atlas-credentials.env from Git', () => {
+// 21. Cloudflare R2 Bucket (`biodata` folder: PDF + Photo + Data JSON) & D1 Database (`biodata` sortable SQL tables)
+test('QA-21: Cloudflare R2 bucket and D1 database archiving stores PDF, photo, and JSON in biodata/ folder and writes sortable D1 rows', () => {
+  assert.equal(R2_BUCKET_NAME, 'biodata');
+  assert.equal(D1_DATABASE_NAME, 'biodata');
+  assert.equal(D1_DATABASE_ID, 'bb855f1e-d450-464d-b4da-f273c821288e');
+
   const groomPreset = COMMUNITY_PRESETS.find((p) => p.id === 'hindu_groom');
   const groomState = groomPreset.apply();
 
@@ -760,34 +768,49 @@ test('QA-21: MongoDB Atlas PDF archiving extracts sortable candidate fields, dec
   assert.equal(decoded.subarray(0, 5).toString('ascii'), '%PDF-');
   assert.equal(decoded.byteLength, fakePdfBytes.byteLength);
 
-  // Verify resolveMongoUri supports both MONGODB_URI and MONGODB_USERNAME + MONGODB_PASSWORD
-  assert.equal(
-    resolveMongoUri({ MONGODB_URI: 'mongodb+srv://u:p@cluster0.7snrub8.mongodb.net' }),
-    'mongodb+srv://u:p@cluster0.7snrub8.mongodb.net'
-  );
-  assert.equal(
-    resolveMongoUri({ MONGODB_USERNAME: 'admin', MONGODB_PASSWORD: 'secret' }),
-    'mongodb+srv://admin:secret@cluster0.7snrub8.mongodb.net'
-  );
+  // Verify photo data URL decoding
+  const fakeJpgBytes = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
+  const photoDecoded = decodePhotoDataUrl(`data:image/jpeg;base64,${fakeJpgBytes.toString('base64')}`);
+  assert.ok(photoDecoded, 'decodePhotoDataUrl must decode valid image data URL');
+  assert.equal(photoDecoded.mimeType, 'image/jpeg');
+  assert.equal(photoDecoded.ext, 'jpg');
+  assert.equal(photoDecoded.sizeBytes, fakeJpgBytes.byteLength);
 
-  // Verify Worker and exporter wiring exist
+  // Verify R2 paths place PDF, photo, and JSON directly inside the biodata/ folder
+  const r2Paths = buildBiodataR2Paths({
+    candidateName: record.candidateName,
+    isoTimestamp: '2026-10-18T19:30:00.000Z',
+    downloadId: 'abc12345-dead-beef',
+    photoExt: 'jpg'
+  });
+  assert.ok(r2Paths.r2FolderPath.startsWith('biodata/rohan-vikramaditya-verma_'), `Expected biodata/ folder prefix, got ${r2Paths.r2FolderPath}`);
+  assert.ok(r2Paths.r2PdfKey.endsWith('/rohan-vikramaditya-verma-biodata.pdf'));
+  assert.ok(r2Paths.r2PhotoKey.endsWith('/rohan-vikramaditya-verma-photo.jpg'));
+  assert.ok(r2Paths.r2JsonKey.endsWith('/rohan-vikramaditya-verma-data.json'));
+  assert.equal(r2Paths.latestR2FolderPath, 'biodata/latest/rohan-vikramaditya-verma');
+
+  // Verify Worker, D1 SQL migration, and scripts exist
   assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/worker.js')), 'src/worker.js must exist for Cloudflare Worker');
-  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/server/mongoArchive.js')), 'src/server/mongoArchive.js must exist');
-  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/setup-mongodb.mjs')), 'scripts/setup-mongodb.mjs must exist');
-  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/query-mongodb-downloads.mjs')), 'scripts/query-mongodb-downloads.mjs must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/server/cloudflareArchive.js')), 'src/server/cloudflareArchive.js must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'migrations/0001_init_biodata_tables.sql')), 'migrations/0001_init_biodata_tables.sql must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/setup-cloudflare-d1-r2.mjs')), 'scripts/setup-cloudflare-d1-r2.mjs must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/query-d1-downloads.mjs')), 'scripts/query-d1-downloads.mjs must exist');
 
   const wranglerRaw = fs.readFileSync(path.join(PROJECT_ROOT, 'wrangler.jsonc'), 'utf8');
   assert.ok(wranglerRaw.includes('"main": "src/worker.js"'), 'wrangler.jsonc must set main to src/worker.js');
-  assert.ok(wranglerRaw.includes('"nodejs_compat"'), 'wrangler.jsonc must enable nodejs_compat for MongoDB driver');
+  assert.ok(wranglerRaw.includes('"BIODATA_BUCKET"'), 'wrangler.jsonc must bind R2 bucket BIODATA_BUCKET');
+  assert.ok(wranglerRaw.includes('"bucket_name": "biodata"'), 'wrangler.jsonc must target R2 bucket biodata');
+  assert.ok(wranglerRaw.includes('"database_id": "bb855f1e-d450-464d-b4da-f273c821288e"'), 'wrangler.jsonc must bind D1 database ID bb855f1e-d450-464d-b4da-f273c821288e');
 
   const exportersRaw = fs.readFileSync(path.join(PROJECT_ROOT, 'src/utils/exporters.js'), 'utf8');
-  assert.ok(exportersRaw.includes('/api/archive-download'), 'exporters.js must archive PDF downloads to /api/archive-download');
+  assert.ok(exportersRaw.includes('/api/archive-download'), 'exporters.js must archive downloads to /api/archive-download');
 
-  // Verify .gitignore protects atlas-credentials.env and .dev.vars
+  // Verify .gitignore protects .env and .dev.vars
   const gitignore = fs.readFileSync(path.join(PROJECT_ROOT, '.gitignore'), 'utf8');
-  assert.ok(gitignore.includes('atlas-credentials.env'), '.gitignore must ignore atlas-credentials.env');
+  assert.ok(gitignore.includes('.env'), '.gitignore must ignore .env');
   assert.ok(gitignore.includes('.dev.vars'), '.gitignore must ignore .dev.vars');
 });
+
 
 
 

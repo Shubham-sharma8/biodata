@@ -315,10 +315,11 @@ export async function buildPdfDocument(sheetEl, stateOrName) {
 }
 
 /**
- * Sends the generated PDF binary (base64) and structured candidate state to `/api/archive-download`
- * so every download is persisted in MongoDB Atlas (`biodata_downloads` + `biodata_candidates`).
+ * Sends the generated PDF binary (base64) and structured candidate state (including photo)
+ * to `/api/archive-download` so every download is persisted in Cloudflare R2 (`biodata/` folder)
+ * and Cloudflare D1 (`biodata_downloads` + `biodata_candidates` tables).
  */
-export async function archiveBiodataPdfToMongo({
+export async function archiveBiodataToCloudflareR2AndD1({
   state,
   sheetEl,
   pdfBase64,
@@ -372,6 +373,8 @@ export async function archiveBiodataPdfToMongo({
   }
 }
 
+export const archiveBiodataPdfToMongo = archiveBiodataToCloudflareR2AndD1;
+
 export async function exportToPDF(sheetEl, stateOrName) {
   if (!sheetEl) return;
   const built = await buildPdfDocument(sheetEl, stateOrName);
@@ -380,8 +383,8 @@ export async function exportToPDF(sheetEl, stateOrName) {
   // 1. Trigger local PDF download immediately
   built.pdf.save(built.fileName);
 
-  // 2. Save the exact same PDF file + candidate record in MongoDB Atlas
-  await archiveBiodataPdfToMongo({
+  // 2. Save the exact same PDF file + photo + candidate record in Cloudflare R2 & D1
+  await archiveBiodataToCloudflareR2AndD1({
     state: typeof stateOrName === 'object' ? stateOrName : null,
     sheetEl,
     pdfBase64: built.pdfBase64,
