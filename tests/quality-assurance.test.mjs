@@ -51,6 +51,11 @@ import {
   clearBiodataCookies
 } from '../src/utils/cookies.js';
 import { SEO_LANDING_ROUTES } from '../src/seo/seoRouter.js';
+import {
+  extractSortableCandidateRecord,
+  decodePdfBase64ToBuffer,
+  resolveMongoUri
+} from '../src/server/mongoArchive.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -728,6 +733,62 @@ test('QA-20: Global SEO/GEO files, compact index.html (< 1000 lines), lazy-loade
     'package.json devDependencies must exactly match package-lock.json root devDependencies for npm ci'
   );
 });
+
+// 21. MongoDB Atlas PDF Archiving, Sortable Candidate Schema, Worker Endpoint & Secret Protection
+test('QA-21: MongoDB Atlas PDF archiving extracts sortable candidate fields, decodes PDF binary, wires Worker /api/archive-download, and protects atlas-credentials.env from Git', () => {
+  const groomPreset = COMMUNITY_PRESETS.find((p) => p.id === 'hindu_groom');
+  const groomState = groomPreset.apply();
+
+  const record = extractSortableCandidateRecord(groomState);
+  assert.equal(record.candidateName, 'Rohan Vikramaditya Verma');
+  assert.equal(record.candidateNameLower, 'rohan vikramaditya verma');
+  assert.equal(record.dateOfBirth, '12 Nov 1995');
+  assert.ok(typeof record.ageYears === 'number' && record.ageYears >= 28, `Expected numeric ageYears, got ${record.ageYears}`);
+  assert.equal(record.religion, 'Hindu');
+  assert.equal(record.caste, 'Rajput (Rathore)');
+  assert.equal(record.gotra, 'Bharadwaj (Self) / Kashyap (Mama)');
+  assert.equal(record.rashi, 'Simha (Leo)');
+  assert.ok(record.contactPhone.includes('+91 98290 12345'), `Expected contactPhone, got ${record.contactPhone}`);
+  assert.equal(record.contactEmail, 'sharma.family.jaipur@example.com');
+  assert.ok(record.candidateFingerprint.includes('rohan vikramaditya verma'), 'candidateFingerprint must include normalized name');
+  assert.equal(record.sections.length, 6, 'Full 6-section snapshot must be preserved for sorting/filtering');
+
+  // Verify PDF base64 decoding validates %PDF- header
+  const fakePdfBytes = Buffer.from('%PDF-1.7\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF', 'utf8');
+  const dataUri = `data:application/pdf;base64,${fakePdfBytes.toString('base64')}`;
+  const decoded = decodePdfBase64ToBuffer(dataUri);
+  assert.equal(decoded.subarray(0, 5).toString('ascii'), '%PDF-');
+  assert.equal(decoded.byteLength, fakePdfBytes.byteLength);
+
+  // Verify resolveMongoUri supports both MONGODB_URI and MONGODB_USERNAME + MONGODB_PASSWORD
+  assert.equal(
+    resolveMongoUri({ MONGODB_URI: 'mongodb+srv://u:p@cluster0.7snrub8.mongodb.net' }),
+    'mongodb+srv://u:p@cluster0.7snrub8.mongodb.net'
+  );
+  assert.equal(
+    resolveMongoUri({ MONGODB_USERNAME: 'admin', MONGODB_PASSWORD: 'secret' }),
+    'mongodb+srv://admin:secret@cluster0.7snrub8.mongodb.net'
+  );
+
+  // Verify Worker and exporter wiring exist
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/worker.js')), 'src/worker.js must exist for Cloudflare Worker');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/server/mongoArchive.js')), 'src/server/mongoArchive.js must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/setup-mongodb.mjs')), 'scripts/setup-mongodb.mjs must exist');
+  assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'scripts/query-mongodb-downloads.mjs')), 'scripts/query-mongodb-downloads.mjs must exist');
+
+  const wranglerRaw = fs.readFileSync(path.join(PROJECT_ROOT, 'wrangler.jsonc'), 'utf8');
+  assert.ok(wranglerRaw.includes('"main": "src/worker.js"'), 'wrangler.jsonc must set main to src/worker.js');
+  assert.ok(wranglerRaw.includes('"nodejs_compat"'), 'wrangler.jsonc must enable nodejs_compat for MongoDB driver');
+
+  const exportersRaw = fs.readFileSync(path.join(PROJECT_ROOT, 'src/utils/exporters.js'), 'utf8');
+  assert.ok(exportersRaw.includes('/api/archive-download'), 'exporters.js must archive PDF downloads to /api/archive-download');
+
+  // Verify .gitignore protects atlas-credentials.env and .dev.vars
+  const gitignore = fs.readFileSync(path.join(PROJECT_ROOT, '.gitignore'), 'utf8');
+  assert.ok(gitignore.includes('atlas-credentials.env'), '.gitignore must ignore atlas-credentials.env');
+  assert.ok(gitignore.includes('.dev.vars'), '.gitignore must ignore .dev.vars');
+});
+
 
 
 

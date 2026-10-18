@@ -278,10 +278,11 @@ async function renderUnscaledSheetCanvas(sourceEl, rootSheetEl = null, scale = 2
   }
 }
 
-export async function exportToPDF(sheetEl, stateOrName) {
-  if (!sheetEl) return;
+export async function buildPdfDocument(sheetEl, stateOrName) {
+  if (!sheetEl) return null;
   const candidateName =
     typeof stateOrName === 'string' ? stateOrName : getCandidateName(stateOrName);
+  const fileName = `${slugifyFilename(candidateName)}-biodata.pdf`;
 
   const pageNodes = sheetEl.querySelectorAll('.biodata-subpage');
   const JsPDFClass = await loadJsPDF();
@@ -294,6 +295,7 @@ export async function exportToPDF(sheetEl, stateOrName) {
 
   const pdfWidth = pdf.internal.pageSize.getWidth(); // 210mm
   const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
+  const pageCount = pageNodes && pageNodes.length > 1 ? pageNodes.length : 1;
 
   if (pageNodes && pageNodes.length > 1) {
     for (let i = 0; i < pageNodes.length; i++) {
@@ -308,7 +310,85 @@ export async function exportToPDF(sheetEl, stateOrName) {
     pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
   }
 
-  pdf.save(`${slugifyFilename(candidateName)}-biodata.pdf`);
+  const pdfBase64 = pdf.output('datauristring');
+  return { pdf, fileName, pageCount, pdfBase64 };
+}
+
+/**
+ * Sends the generated PDF binary (base64) and structured candidate state to `/api/archive-download`
+ * so every download is persisted in MongoDB Atlas (`biodata_downloads` + `biodata_candidates`).
+ */
+export async function archiveBiodataPdfToMongo({
+  state,
+  sheetEl,
+  pdfBase64,
+  fileName,
+  pageCount = 1,
+  downloadFormat = 'pdf'
+} = {}) {
+  try {
+    if (typeof window === 'undefined' || typeof fetch === 'undefined') {
+      return null;
+    }
+
+    let finalPdfBase64 = pdfBase64;
+    let finalFileName = fileName;
+    let finalPageCount = pageCount;
+
+    if (!finalPdfBase64) {
+      const targetSheet =
+        sheetEl ||
+        document.getElementById('biodata-sheet') ||
+        document.querySelector('#biodata-preview-root .biodata-sheet') ||
+        document.querySelector('.biodata-sheet');
+      if (targetSheet) {
+        const built = await buildPdfDocument(targetSheet, state);
+        if (built) {
+          finalPdfBase64 = built.pdfBase64;
+          finalFileName = built.fileName;
+          finalPageCount = built.pageCount;
+        }
+      }
+    }
+
+    const res = await fetch('/api/archive-download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        state: state && typeof state === 'object' ? state : {},
+        pdfBase64: finalPdfBase64 || '',
+        fileName: finalFileName || '',
+        pageCount: finalPageCount || 1,
+        downloadFormat,
+        pageUrl: window.location.href
+      })
+    });
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    // Non-blocking archival: never interrupt the user's local download
+    return null;
+  }
+}
+
+export async function exportToPDF(sheetEl, stateOrName) {
+  if (!sheetEl) return;
+  const built = await buildPdfDocument(sheetEl, stateOrName);
+  if (!built) return;
+
+  // 1. Trigger local PDF download immediately
+  built.pdf.save(built.fileName);
+
+  // 2. Save the exact same PDF file + candidate record in MongoDB Atlas
+  await archiveBiodataPdfToMongo({
+    state: typeof stateOrName === 'object' ? stateOrName : null,
+    sheetEl,
+    pdfBase64: built.pdfBase64,
+    fileName: built.fileName,
+    pageCount: built.pageCount,
+    downloadFormat: 'pdf'
+  });
 }
 
 export const exportToPdf = exportToPDF;
@@ -325,7 +405,7 @@ export async function exportToImage(sheetEl, stateOrName, format = 'png') {
   const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
   const ext = format === 'jpg' ? 'jpg' : 'png';
 
-  return new Promise((resolve) => {
+  await new Promise((resolve) => {
     canvas.toBlob(
       (blob) => {
         if (blob) {
@@ -336,6 +416,13 @@ export async function exportToImage(sheetEl, stateOrName, format = 'png') {
       mime,
       0.95
     );
+  });
+
+  // Also generate & archive the exact PDF file to MongoDB Atlas when downloading PNG/JPG
+  archiveBiodataPdfToMongo({
+    state: typeof stateOrName === 'object' ? stateOrName : null,
+    sheetEl,
+    downloadFormat: ext
   });
 }
 
@@ -653,6 +740,12 @@ export async function exportToWordDocx(state, template) {
 
   const blob = await Packer.toBlob(doc);
   triggerDownload(blob, `${slugifyFilename(candidateName)}-biodata.docx`);
+
+  // Also archive the corresponding PDF file + candidate record in MongoDB Atlas
+  archiveBiodataPdfToMongo({
+    state,
+    downloadFormat: 'docx'
+  });
 }
 
 export function printBiodata() {
@@ -666,6 +759,12 @@ export function exportBiodataJSON(state) {
   const payload = JSON.stringify(state, null, 2);
   const blob = new Blob([payload], { type: 'application/json' });
   triggerDownload(blob, `${slugifyFilename(candidateName)}-biodata-backup.json`);
+
+  // Also archive the corresponding PDF file + candidate record in MongoDB Atlas
+  archiveBiodataPdfToMongo({
+    state,
+    downloadFormat: 'json'
+  });
 }
 
 export const exportProjectJson = exportBiodataJSON;
