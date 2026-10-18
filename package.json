@@ -1,0 +1,26 @@
+{
+  "name": "biodata-cogify",
+  "version": "2.1.0",
+  "description": "Free Marriage Biodata Maker Online by COGIFY (biodata.cogify.me) — Instant Live Preview, 160+ Cultural & Modern Templates, Cookie Auto-Save, PDF, HD PNG/JPG & Editable Word (.docx) Export",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "cf:deploy": "vite build && npx wrangler deploy",
+    "cf:dev": "vite build && npx wrangler dev",
+    "ingest": "node scripts/ingest-templates.mjs",
+    "test": "node --test tests/quality-assurance.test.mjs"
+  },
+  "dependencies": {
+    "docx": "^9.5.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.3"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

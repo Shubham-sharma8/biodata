@@ -1,0 +1,236 @@
+{
+  "pipelineVersion": "1.0.0",
+  "generatedAt": "2026-10-18T08:32:37.428Z",
+  "status": "SUCCESS",
+  "canvaDiscoverySummary": {
+    "mcpServer": "canva",
+    "totalWorkspaceItemsScanned": 193,
+    "rawCandidateHitsAcrossQueries": 83,
+    "uniqueDeduplicatedCanvaReferences": 52,
+    "pathCounts": {
+      "path_a_direct_import": 6,
+      "path_b_editable_reconstruction": 26,
+      "path_c_external_reference": 20
+    },
+    "verifiedPathADirectExports": [
+      {
+        "canvaDesignId": "DAGCBYaMFJ0",
+        "title": "Navy Blue and Gold Traditional Indian Wedding Invitation",
+        "assetPath": "/canva-imports/DAGCBYaMFJ0.png",
+        "sizeBytes": 380866
+      },
+      {
+        "canvaDesignId": "DAF7wdV1yTM",
+        "title": "Blue and Gold Indian Floral Royal Wedding Invitation",
+        "assetPath": "/canva-imports/DAF7wdV1yTM.png",
+        "sizeBytes": 184843
+      },
+      {
+        "canvaDesignId": "DAGCBZXtrU0",
+        "title": "Purple Pink and Golden Wedding Invitation",
+        "assetPath": "/canva-imports/DAGCBZXtrU0.png",
+        "sizeBytes": 556976
+      },
+      {
+        "canvaDesignId": "DAFwkHRJNU8",
+        "title": "Blue Orange Floral Watercolor Wedding Announcement",
+        "assetPath": "/canva-imports/DAFwkHRJNU8.png",
+        "sizeBytes": 1108631
+      },
+      {
+        "canvaDesignId": "DAHJJwOFBA4",
+        "title": "Orange Red and Blue Shri Khatu Shyam Bhajan Sandhya Print Poster",
+        "assetPath": "/canva-imports/DAHJJwOFBA4.png",
+        "sizeBytes": 771851
+      },
+      {
+        "canvaDesignId": "DAHPnjjeJzA",
+        "title": "Beige Modern Designer Personal Bio Link Instagram Story",
+        "assetPath": "/canva-imports/DAHPnjjeJzA.png",
+        "sizeBytes": 297450
+      }
+    ],
+    "catalogStats": {
+      "connectedServer": "canva",
+      "inspectedTools": [
+        "search-designs",
+        "search-brand-templates",
+        "search-folders",
+        "list-folder-items",
+        "list-brand-kits",
+        "get-design",
+        "get-design-pages",
+        "get-design-content",
+        "get-design-thumbnail",
+        "get-export-formats",
+        "export-design",
+        "copy-design",
+        "import-design-from-url",
+        "start-editing-transaction",
+        "perform-editing-operations",
+        "commit-editing-transaction"
+      ],
+      "executedQueries": [
+        {
+          "tool": "search-designs",
+          "query": "biodata",
+          "resultsCount": 29
+        },
+        {
+          "tool": "search-designs",
+          "query": "marriage biodata",
+          "resultsCount": 50
+        },
+        {
+          "tool": "search-designs",
+          "query": "wedding biodata",
+          "resultsCount": 50
+        },
+        {
+          "tool": "search-designs",
+          "query": "matrimonial",
+          "resultsCount": 0
+        },
+        {
+          "tool": "search-designs",
+          "query": "Indian wedding",
+          "resultsCount": 50
+        },
+        {
+          "tool": "search-designs",
+          "query": "Nikah",
+          "resultsCount": 1
+        },
+        {
+          "tool": "search-designs",
+          "query": "Floral wedding",
+          "resultsCount": 39
+        },
+        {
+          "tool": "search-designs",
+          "query": "Traditional Indian",
+          "resultsCount": 50
+        },
+        {
+          "tool": "search-designs",
+          "query": "bio",
+          "resultsCount": 4
+        },
+        {
+          "tool": "search-designs",
+          "query": "sort_by=modified_descending",
+          "resultsCount": 50
+        },
+        {
+          "tool": "search-brand-templates",
+          "query": "all",
+          "resultsCount": 0
+        },
+        {
+          "tool": "search-folders",
+          "query": "all",
+          "resultsCount": 20
+        },
+        {
+          "tool": "list-folder-items",
+          "query": "folder_id=root",
+          "resultsCount": 50
+        }
+      ],
+      "totalUniqueAccountItemsScanned": 193,
+      "totalAccessibleDesignsInAccount": 193,
+      "rawWeddingAndBioCandidates": 83,
+      "rawWeddingAndBiodataSearchCandidates": 83,
+      "deduplicatedReferenceCount": 52,
+      "mcpServer": "canva",
+      "pathACount": 6,
+      "pathBCount": 26,
+      "pathCCount": 20,
+      "catalogEntries": 52,
+      "total": 52,
+      "pathA": 6,
+      "pathB": 26,
+      "pathC": 20,
+      "byPath": {
+        "A": 6,
+        "B": 26,
+        "C": 20
+      }
+    }
+  },
+  "nativeTemplateCollectionSummary": {
+    "totalValidatedTemplates": 242,
+    "uniqueIds": 242,
+    "uniqueVisualSignatures": 242,
+    "categoryBreakdown": {
+      "traditional": 49,
+      "floral": 15,
+      "islamic": 14,
+      "interfaith": 12,
+      "modern": 27,
+      "canva": 46,
+      "regional": 14,
+      "two-page": 16,
+      "no-photo": 16,
+      "dark-luxury": 8,
+      "sikh": 6,
+      "jain": 4,
+      "christian": 6,
+      "buddhist": 4,
+      "bengali": 1,
+      "gujarati": 1,
+      "rajasthani": 1,
+      "minimal": 2
+    },
+    "layoutBreakdown": {
+      "classic": 48,
+      "two-column": 28,
+      "sidebar-left": 11,
+      "editorial-banner": 7,
+      "royal-centered-crest": 18,
+      "header-split-card": 23,
+      "boxed-sections-grid": 17,
+      "sidebar-right": 6,
+      "two-page-comprehensive": 21,
+      "timeline-spine": 5,
+      "kundali-horoscope-focus": 14,
+      "arched-palace-darbar": 15,
+      "magazine-cover-spread": 14,
+      "modern-infographic-resume": 15
+    },
+    "styleBreakdown": {
+      "traditional": 155,
+      "premium": 161,
+      "minimalist": 100,
+      "floral": 67,
+      "modern": 137
+    },
+    "colorFamilyBreakdown": {
+      "red": 66,
+      "gold": 51,
+      "dark": 26,
+      "blue": 32,
+      "pink": 21,
+      "ivory": 14,
+      "green": 18,
+      "neutral": 11,
+      "purple": 3
+    },
+    "sourceTypeBreakdown": {
+      "native-original": 196,
+      "canva-path-a": 6,
+      "canva-path-b": 40
+    },
+    "pageCountBreakdown": {
+      "1_page": 221,
+      "2_page": 21
+    },
+    "photoSupportBreakdown": {
+      "with_photo": 225,
+      "no_photo": 17
+    }
+  },
+  "warnings": [],
+  "failedImportsCount": 0,
+  "failedImports": []
+}

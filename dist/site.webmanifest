@@ -1,0 +1,16 @@
+{
+  "name": "Free Marriage Biodata Maker — PDF, Word & Image",
+  "short_name": "BiodataMaker",
+  "description": "Create and download a marriage biodata in PDF, Editable Word (.docx), and HD PNG/JPG for 100% free. No signup, no watermark, live keystroke preview.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F5",
+  "theme_color": "#8B1E2F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
