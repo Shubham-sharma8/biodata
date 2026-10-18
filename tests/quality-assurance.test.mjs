@@ -710,7 +710,25 @@ test('QA-20: Global SEO/GEO files, compact index.html (< 1000 lines), lazy-loade
   assert.ok(readmeMd.includes('public/screenshots/desktop-studio-live-preview.png'), 'README.md must embed desktop screenshot');
   assert.ok(readmeMd.includes('https://biodata.cogify.me'), 'README.md must link to https://biodata.cogify.me');
   assert.ok(readmeMd.includes('https://cogify.me'), 'README.md must link to https://cogify.me');
+
+  // Verify .gitignore ignores node_modules/ and package.json matches package-lock.json for npm ci
+  const gitignore = fs.readFileSync(path.join(PROJECT_ROOT, '.gitignore'), 'utf8');
+  assert.ok(gitignore.includes('node_modules/'), '.gitignore must ignore node_modules/');
+
+  const pkgJson = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package.json'), 'utf8'));
+  const pkgLock = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, 'package-lock.json'), 'utf8'));
+  assert.deepEqual(
+    pkgJson.dependencies,
+    pkgLock.packages[''].dependencies,
+    'package.json dependencies must exactly match package-lock.json root dependencies for npm ci'
+  );
+  assert.deepEqual(
+    pkgJson.devDependencies,
+    pkgLock.packages[''].devDependencies,
+    'package.json devDependencies must exactly match package-lock.json root devDependencies for npm ci'
+  );
 });
+
 
 
 
