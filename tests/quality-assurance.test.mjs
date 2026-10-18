@@ -787,7 +787,7 @@ test('QA-21: Cloudflare R2 bucket and D1 database archiving stores PDF, photo, a
   assert.ok(r2Paths.r2PdfKey.endsWith('/rohan-vikramaditya-verma-biodata.pdf'));
   assert.ok(r2Paths.r2PhotoKey.endsWith('/rohan-vikramaditya-verma-photo.jpg'));
   assert.ok(r2Paths.r2JsonKey.endsWith('/rohan-vikramaditya-verma-data.json'));
-  assert.equal(r2Paths.latestR2FolderPath, 'biodata/latest/rohan-vikramaditya-verma');
+  assert.equal(r2Paths.latestR2FolderPath, undefined, 'Must not generate duplicate latest/ folder paths in R2');
 
   // Verify Worker, D1 SQL migration, and scripts exist
   assert.ok(fs.existsSync(path.join(PROJECT_ROOT, 'src/worker.js')), 'src/worker.js must exist for Cloudflare Worker');

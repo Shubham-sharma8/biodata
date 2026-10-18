@@ -279,6 +279,7 @@ export function decodePhotoDataUrl(photoDataUrl) {
 
 /**
  * Generates deterministic R2 object paths inside the `biodata/` folder for a download event.
+ * Stores files once directly inside `biodata/<slug>_<timestamp>_<id>/` without duplicating into a `latest/` subfolder.
  */
 export function buildBiodataR2Paths({ candidateName, isoTimestamp, downloadId, photoExt }) {
   const slug = slugifyCandidateName(candidateName);
@@ -289,18 +290,13 @@ export function buildBiodataR2Paths({ candidateName, isoTimestamp, downloadId, p
   const shortSuffix = cleanStr(downloadId).slice(-6) || '000001';
 
   const folderPath = `${R2_FOLDER_PREFIX}/${slug}_${compactTime}_${shortSuffix}`;
-  const latestFolderPath = `${R2_FOLDER_PREFIX}/latest/${slug}`;
 
   return {
     slug,
     r2FolderPath: folderPath,
     r2PdfKey: `${folderPath}/${slug}-biodata.pdf`,
     r2PhotoKey: photoExt ? `${folderPath}/${slug}-photo.${photoExt}` : '',
-    r2JsonKey: `${folderPath}/${slug}-data.json`,
-    latestR2FolderPath: latestFolderPath,
-    latestR2PdfKey: `${latestFolderPath}/${slug}-biodata.pdf`,
-    latestR2PhotoKey: photoExt ? `${latestFolderPath}/${slug}-photo.${photoExt}` : '',
-    latestR2JsonKey: `${latestFolderPath}/${slug}-data.json`
+    r2JsonKey: `${folderPath}/${slug}-data.json`
   };
 }
 
@@ -452,7 +448,7 @@ export async function ensureD1Tables(d1Database) {
 }
 
 /**
- * Saves the PDF, candidate photo, and full biodata JSON directly into the R2 bucket `biodata/` folder,
+ * Saves the PDF, candidate photo, and full biodata JSON once directly into the R2 bucket `biodata/` folder,
  * and saves the sortable candidate row into Cloudflare D1 (`biodata_downloads` + `biodata_candidates`).
  */
 export async function saveBiodataToR2AndD1({
@@ -489,7 +485,8 @@ export async function saveBiodataToR2AndD1({
   const pageCount = Number(payload.pageCount) || 1;
   const downloadFormat = cleanStr(payload.downloadFormat) || 'pdf';
 
-  // Build complete JSON bundle saved alongside the PDF and photo inside the R2 `biodata/` folder
+  // Build compact JSON bundle saved alongside the PDF and photo inside the R2 `biodata/` folder
+  // (Photo binary is already stored as `<slug>-photo.<ext>` in the same folder, so we avoid duplicating base64 bytes)
   const completeBiodataJson = JSON.stringify(
     {
       id: downloadId,
@@ -514,8 +511,7 @@ export async function saveBiodataToR2AndD1({
         enabled: Boolean(photoEnabled && decodedPhoto),
         mimeType: decodedPhoto ? decodedPhoto.mimeType : '',
         sizeBytes: decodedPhoto ? decodedPhoto.sizeBytes : 0,
-        r2PhotoKey: paths.r2PhotoKey,
-        dataUrl: photoEnabled ? cleanStr(state?.photo?.dataUrl) : ''
+        r2PhotoKey: paths.r2PhotoKey
       },
       clientMeta: {
         country: cleanStr(requestMeta.country),
@@ -542,11 +538,10 @@ export async function saveBiodataToR2AndD1({
     createdAt: isoTimestamp
   };
 
-  // 1. Save PDF, Photo, and JSON into Cloudflare R2 Bucket (`biodata` folder)
+  // 1. Save PDF, Photo, and JSON ONCE into Cloudflare R2 Bucket (`biodata/<slug>_<timestamp>_<id>/`)
   let r2Saved = false;
   if (r2Bucket && typeof r2Bucket.put === 'function') {
     const r2Uploads = [
-      // Timestamped download folder inside `biodata/`
       r2Bucket.put(paths.r2PdfKey, pdfBuffer, {
         httpMetadata: {
           contentType: 'application/pdf',
@@ -555,20 +550,6 @@ export async function saveBiodataToR2AndD1({
         customMetadata
       }),
       r2Bucket.put(paths.r2JsonKey, jsonBytes, {
-        httpMetadata: {
-          contentType: 'application/json; charset=utf-8'
-        },
-        customMetadata
-      }),
-      // Latest folder for this candidate inside `biodata/latest/<slug>/`
-      r2Bucket.put(paths.latestR2PdfKey, pdfBuffer, {
-        httpMetadata: {
-          contentType: 'application/pdf',
-          contentDisposition: `inline; filename="${fileName}"`
-        },
-        customMetadata
-      }),
-      r2Bucket.put(paths.latestR2JsonKey, jsonBytes, {
         httpMetadata: {
           contentType: 'application/json; charset=utf-8'
         },
@@ -583,17 +564,25 @@ export async function saveBiodataToR2AndD1({
             contentType: decodedPhoto.mimeType
           },
           customMetadata
-        }),
-        r2Bucket.put(paths.latestR2PhotoKey, decodedPhoto.buffer, {
-          httpMetadata: {
-            contentType: decodedPhoto.mimeType
-          },
-          customMetadata
         })
       );
     }
 
     await Promise.all(r2Uploads);
+
+    // Automatically clean up any legacy duplicate `biodata/latest/` folder objects if present
+    if (typeof r2Bucket.list === 'function' && typeof r2Bucket.delete === 'function') {
+      try {
+        const legacyLatest = await r2Bucket.list({ prefix: `${R2_FOLDER_PREFIX}/latest/` });
+        if (legacyLatest && Array.isArray(legacyLatest.objects) && legacyLatest.objects.length > 0) {
+          const keysToDelete = legacyLatest.objects.map((obj) => obj.key);
+          await r2Bucket.delete(keysToDelete);
+        }
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+
     r2Saved = true;
   }
 

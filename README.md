@@ -148,10 +148,10 @@ This compiles optimized client bundles into `dist/` and runs [`scripts/generate-
 
 ### 5. Cloudflare R2 (`biodata` Bucket) & D1 (`biodata` Database) Download Archiving
 Every time a user downloads their biodata (PDF, PNG/JPG, Word `.docx`, or JSON), the Cloudflare Worker (`src/worker.js` + `src/server/cloudflareArchive.js`) automatically archives:
-1. **Cloudflare R2 Bucket (`biodata`, binding `BIODATA_BUCKET`)** — Directly inside the `biodata/` folder (`biodata/<candidate-slug>_<timestamp>_<id>/` and `biodata/latest/<candidate-slug>/`):
+1. **Cloudflare R2 Bucket (`biodata`, binding `BIODATA_BUCKET`)** — Saved once directly inside `biodata/<candidate-slug>_<timestamp>_<id>/`:
    - `<slug>-biodata.pdf` — Exact 300 DPI A4 PDF binary
    - `<slug>-photo.<jpg|png|webp|svg>` — Candidate profile photo binary (when included)
-   - `<slug>-data.json` — Complete candidate JSON snapshot (all sections, fields, template, and photo)
+   - `<slug>-data.json` — Compact candidate JSON snapshot (all sections, fields, and template metadata)
 2. **Cloudflare D1 Database (`biodata`, ID `bb855f1e-d450-464d-b4da-f273c821288e`, binding `DB`)**:
    - `biodata_downloads` — Every download event with sortable columns (`candidate_name`, `date_of_birth`, `age_years`, `religion`, `caste`, `gotra`, `rashi`, `nakshatra`, `manglik`, `education`, `occupation`, `income`, `work_location`, `father_name`, `mother_name`, `native_place`, `contact_phone`, `contact_email`, `r2_folder_path`, `r2_pdf_key`, `r2_photo_key`, `r2_json_key`, `created_at`)
    - `biodata_candidates` — Deduplicated candidate directory indexed by `candidate_fingerprint`
