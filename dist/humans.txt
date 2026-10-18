@@ -1,0 +1,12 @@
+/* TEAM */
+Engineering & Product Studio: Cogify
+Website: https://cogify.me
+Application: https://biodata.cogify.me
+GitHub: https://github.com/Shubham-sharma8/biodata
+Location: Global / India
+
+/* SITE */
+Last update: 2026-10-18
+Standards: HTML5, CSS3, ES2022, Schema.org JSON-LD, Open Graph, WAI-ARIA, Web Share API
+Components: Vite 6, Cloudflare Workers, Client-Side A4 Print Engine, Multi-Language Matrimonial Schema
+Privacy: 100% Client-Side Local Execution (Zero server uploads, zero watermarks, zero tracking)

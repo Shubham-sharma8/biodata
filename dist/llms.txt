@@ -1,0 +1,33 @@
+# Marriage Biodata Maker Studio — biodata.cogify.me
+
+> Free, 100% client-side Marriage Biodata Maker Studio & Shadi Profile Builder engineered by Cogify (https://cogify.me). Create, customize, compare, and download high-DPI print-ready A4 Marriage Biodata in PDF, PNG, Editable Word (.docx), and WhatsApp Summary formats with zero signup, zero watermarks, and complete browser privacy.
+
+## Primary URLs
+- **Live Web Application**: https://biodata.cogify.me/
+- **Parent Engineering Studio**: https://cogify.me/
+- **Open-Source Repository**: https://github.com/Shubham-sharma8/biodata
+- **XML Sitemap**: https://biodata.cogify.me/sitemap.xml
+- **Full Technical & Cultural Reference**: https://biodata.cogify.me/llms-full.txt
+
+## Key Capabilities & Differentiators
+- **42 Hand-Crafted A4 Templates & 14 Layout Engines**: Royal Traditional, Floral & Festive, Modern Executive, Minimalist Editorial, and Community Classics (Hindu, Muslim Nikah, Sikh Anand Karaj, Christian, Jain, Buddhist, NRI, Gujarati, Marathi, Tamil, Telugu, Bengali).
+- **100% Client-Side Privacy (Zero Server Uploads)**: All personal details, horoscopes, family backgrounds, contact numbers, and portrait photos remain strictly inside the user's browser (`localStorage`, encrypted cookies, and local Canvas/SVG rendering).
+- **True 1:1 A4 WYSIWYG Print & Export Engine**: Instant export to 300-DPI Print PDF, High-Resolution PNG, Editable Microsoft Word (`.docx`), WhatsApp Text Summary, and JSON Backup/Restore.
+- **Smart Astrological & Cultural Presets**: Built-in Day/Month/Year DOB selector with automatic years-only age calculation, Rashi/Nakshatra/Gothra/Manglik dropdowns, 14 sacred religious invocations & symbols, and 9 Indian & international language label packs (English, Hindi, Marathi, Gujarati, Tamil, Telugu, Bengali, Punjabi, Urdu).
+
+## High-Intent Landing Routes
+- [Hindu Marriage Biodata Maker](https://biodata.cogify.me/hindu-marriage-biodata): Traditional Hindu shadi biodata with Shree Ganeshaya Namah, Kundali/Horoscope, Rashi, Nakshatra, and Gotra fields.
+- [Muslim Nikah Biodata Maker](https://biodata.cogify.me/muslim-nikah-biodata): Islamic matrimonial biodata with Bismillah calligraphy, Sect/Maslak, Namaz/Deen practice, and Wali details.
+- [Sikh Anand Karaj Biodata Maker](https://biodata.cogify.me/sikh-marriage-biodata): Punjabi & Sikh matrimonial biodata with Ik Onkar symbol, Gursikh/Amritdhari fields, and family heritage.
+- [Christian Marriage Biodata Maker](https://biodata.cogify.me/christian-marriage-biodata): Christian matrimony profile format with Holy Cross header, Denomination, Parish, and Ministry details.
+- [Jain Marriage Biodata Maker](https://biodata.cogify.me/jain-marriage-biodata): Digambar/Shwetambar Jain shadi biodata with Jai Jinendra invocation and Sampradaya details.
+- [Marathi Lagnaacha Biodata Maker](https://biodata.cogify.me/marathi-marriage-biodata): Marathi matrimonial biodata (`लग्नाचा बायोडाटा`) with Kuldaivat, Devak, Mamakul, and Gotra.
+- [Gujarati Lagna Biodata Maker](https://biodata.cogify.me/gujarati-marriage-biodata): Gujarati wedding biodata (`લગ્ન બાયોડેટા`) with Shrinathji/Ganesh header, Mosal, Native Place, and Gnati.
+- [Hindi Shadi Biodata Maker](https://biodata.cogify.me/hindi-shadi-biodata): Hindi marriage biodata (`शादी बायोडाटा मेकर`) in Devanagari script.
+- [Tamil Thirumana Biodata Maker](https://biodata.cogify.me/tamil-marriage-biodata): Tamil marriage biodata (`திருமண பயோடேட்டா`) with Kuladeivam, Rasi, Star/Natchathiram, and Dosham.
+- [Telugu Pellichoopulu Biodata Maker](https://biodata.cogify.me/telugu-marriage-biodata): Telugu marriage biodata (`పెళ్లి బయోడేటా`) with Gothram, Raasi, Nakshatram, and Pravara.
+- [Bengali Biyer Biodata Maker](https://biodata.cogify.me/bengali-marriage-biodata): Bengali matrimonial biodata (`বিয়ের বায়োডাটা`) with Shree Shree Prajapataye Namah, Gana, and Gotra.
+- [NRI & Modern Executive Biodata Maker](https://biodata.cogify.me/nri-executive-biodata): Global NRI & executive matrimonial profile with Visa Status, Global Relocation, and Career Highlights.
+- [Marriage Biodata PDF Download](https://biodata.cogify.me/biodata-for-marriage-pdf): High-DPI print-ready A4 PDF marriage biodata generator.
+- [Marriage Biodata Word Format (.docx)](https://biodata.cogify.me/biodata-word-format): Editable Microsoft Word `.docx` marriage biodata template builder.
+- [WhatsApp Marriage Biodata Maker](https://biodata.cogify.me/whatsapp-biodata-maker): Formatted WhatsApp matrimonial profile text & A4 PNG card generator.

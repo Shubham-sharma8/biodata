@@ -8,25 +8,33 @@
  * 5. Direct WhatsApp & Clipboard Formatted Summary Share
  */
 
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  Table,
-  TableRow,
-  TableCell,
-  WidthType,
-  AlignmentType,
-  BorderStyle,
-  HeadingLevel,
-  ImageRun,
-  VerticalAlign
-} from 'docx';
 import { getTemplateById } from '../data/templates.js';
 import { getActiveSections } from '../templates/renderer.js';
+
+let _html2canvasPromise = null;
+let _jsPdfPromise = null;
+let _docxPromise = null;
+
+async function loadHtml2Canvas() {
+  if (!_html2canvasPromise) {
+    _html2canvasPromise = import('html2canvas').then((m) => m.default || m);
+  }
+  return _html2canvasPromise;
+}
+
+async function loadJsPDF() {
+  if (!_jsPdfPromise) {
+    _jsPdfPromise = import('jspdf').then((m) => m.jsPDF || m.default);
+  }
+  return _jsPdfPromise;
+}
+
+async function loadDocx() {
+  if (!_docxPromise) {
+    _docxPromise = import('docx');
+  }
+  return _docxPromise;
+}
 
 export function slugifyFilename(name) {
   const clean = String(name || 'marriage-biodata')
@@ -84,6 +92,51 @@ function triggerDownload(blob, filename) {
     if (a.parentNode) a.parentNode.removeChild(a);
     URL.revokeObjectURL(url);
   }, 350);
+}
+
+/**
+ * Converts any SVG data URL (or image URL) into a raster PNG data URL so html2canvas and Word (.docx)
+ * render SVG portrait avatars and custom emblems 100% reliably across all browsers.
+ */
+async function rasterizeImageUrlToPngDataUrl(src, width = 320, height = 400) {
+  if (!src || typeof src !== 'string') return src;
+  if (!src.startsWith('data:image/svg+xml')) return src;
+  if (typeof document === 'undefined') return src;
+
+  let normalizedSrc = src;
+  try {
+    const commaIdx = src.indexOf(',');
+    if (commaIdx !== -1) {
+      const header = src.slice(0, commaIdx);
+      const body = src.slice(commaIdx + 1);
+      let svgText = header.includes(';base64') ? atob(body) : decodeURIComponent(body);
+      if (svgText.includes('<svg') && !/\bwidth\s*=/.test(svgText.slice(0, 220))) {
+        svgText = svgText.replace('<svg', `<svg width="${width}" height="${height}"`);
+      }
+      normalizedSrc = `data:image/svg+xml;utf8,${encodeURIComponent(svgText)}`;
+    }
+  } catch {
+    // keep original src
+  }
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = width * 2;
+        canvas.height = height * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/png'));
+      } catch {
+        resolve(normalizedSrc);
+      }
+    };
+    img.onerror = () => resolve(normalizedSrc);
+    img.src = normalizedSrc;
+  });
 }
 
 /**
@@ -171,8 +224,29 @@ async function renderUnscaledSheetCanvas(sourceEl, rootSheetEl = null, scale = 2
     }
   });
 
+  // Rasterize any SVG data URL images (e.g. default portrait avatars) to PNG so html2canvas draws them 100% reliably
+  const imgNodes = Array.from(clone.querySelectorAll('img'));
+  for (const imgEl of imgNodes) {
+    const rawSrc = imgEl.getAttribute('src') || '';
+    if (rawSrc.startsWith('data:image/svg+xml')) {
+      const pngDataUrl = await rasterizeImageUrlToPngDataUrl(rawSrc, 320, 400);
+      imgEl.setAttribute('src', pngDataUrl);
+    }
+  }
+
   wrapper.appendChild(clone);
   document.body.appendChild(wrapper);
+
+  // Wait for all images inside clone to finish decoding
+  for (const imgEl of imgNodes) {
+    if (imgEl.decode) {
+      try {
+        await imgEl.decode();
+      } catch {
+        // ignore decode errors
+      }
+    }
+  }
 
   try {
     const computedPaper =
@@ -180,6 +254,7 @@ async function renderUnscaledSheetCanvas(sourceEl, rootSheetEl = null, scale = 2
       window.getComputedStyle(clone).backgroundColor ||
       '#ffffff';
 
+    const html2canvas = await loadHtml2Canvas();
     const canvas = await html2canvas(clone, {
       scale,
       useCORS: true,
@@ -209,7 +284,8 @@ export async function exportToPDF(sheetEl, stateOrName) {
     typeof stateOrName === 'string' ? stateOrName : getCandidateName(stateOrName);
 
   const pageNodes = sheetEl.querySelectorAll('.biodata-subpage');
-  const pdf = new jsPDF({
+  const JsPDFClass = await loadJsPDF();
+  const pdf = new JsPDFClass({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
@@ -291,6 +367,21 @@ function dataUrlToUint8Array(dataUrl) {
  * - Subsequent sections rendered in clean aligned 2-column tables
  */
 export async function exportToWordDocx(state, template) {
+  const {
+    Document,
+    Packer,
+    Paragraph,
+    TextRun,
+    Table,
+    TableRow,
+    TableCell,
+    WidthType,
+    AlignmentType,
+    BorderStyle,
+    HeadingLevel,
+    ImageRun,
+    VerticalAlign
+  } = await loadDocx();
   const tpl = template || getTemplateById(state?.templateId);
   const f = state?.formatting || {};
 
@@ -453,7 +544,12 @@ export async function exportToWordDocx(state, template) {
   // Check if photo should be rendered alongside Personal Details (matching the A4 preview!)
   const templateSupportsPhoto = tpl?.photoSupport !== 'no-photo' && tpl?.photoShape !== 'none';
   const hasPhoto = Boolean(templateSupportsPhoto && state?.photo?.show !== false && state?.photo?.dataUrl);
-  const photoBytes = hasPhoto ? dataUrlToUint8Array(state.photo.dataUrl) : null;
+  const resolvedPhotoDataUrl = hasPhoto
+    ? (String(state.photo.dataUrl).startsWith('data:image/svg+xml')
+        ? await rasterizeImageUrlToPngDataUrl(state.photo.dataUrl, 320, 400)
+        : state.photo.dataUrl)
+    : null;
+  const photoBytes = resolvedPhotoDataUrl ? dataUrlToUint8Array(resolvedPhotoDataUrl) : null;
 
   activeSections.forEach((sec, idx) => {
     const activeFields = sec.visibleFields || [];

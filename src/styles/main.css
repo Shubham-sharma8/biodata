@@ -4375,4 +4375,15 @@ body {
   }
 }
 
+/* ==========================================================================
+   21. Core Web Vitals & Below-the-Fold Rendering Optimization
+   ========================================================================== */
+.template-gallery-section,
+.seo-content-section,
+.cogify-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
+
 

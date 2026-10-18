@@ -50,6 +50,7 @@ import {
   getSavedCookieSummary,
   clearBiodataCookies
 } from '../src/utils/cookies.js';
+import { SEO_LANDING_ROUTES } from '../src/seo/seoRouter.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -650,6 +651,67 @@ test('QA-19: DOB Day/Month/Year picker, years-only age calculation, restored cla
   assert.ok(waSummary.includes('*Contact Details*'), 'WhatsApp summary must include Contact Details heading');
   assert.ok(waSummary.includes('Made via https://biodata.cogify.me'), 'WhatsApp summary must include attribution link');
 });
+
+// 20. Global SEO/GEO Suite, Compact index.html (<1000 Lines), Lazy-Loaded Export Vendors & GitHub README
+test('QA-20: Global SEO/GEO files, compact index.html (< 1000 lines), lazy-loaded export vendors, and README exist', () => {
+  const indexHtml = fs.readFileSync(path.join(PROJECT_ROOT, 'index.html'), 'utf8');
+  const lineCount = indexHtml.split('\n').length;
+  assert.ok(lineCount < 1000, `Expected index.html to be < 1000 lines for faster load & SEO, got ${lineCount}`);
+
+  // Verify SEO & GEO discovery files
+  const requiredFiles = [
+    'public/robots.txt',
+    'public/sitemap.xml',
+    'public/sitemap.xsl',
+    'public/llms.txt',
+    'public/llms-full.txt',
+    'public/site.webmanifest',
+    'public/humans.txt',
+    'public/.well-known/security.txt',
+    'public/favicon.svg',
+    'public/og-banner.png',
+    'public/icon-512.png',
+    'public/icon-192.png',
+    'public/apple-touch-icon.png',
+    'scripts/generate-seo-pages.mjs',
+    'README.md'
+  ];
+  for (const relPath of requiredFiles) {
+    assert.ok(fs.existsSync(path.join(PROJECT_ROOT, relPath)), `Required SEO/production file missing: ${relPath}`);
+  }
+
+  // Verify international hreflang, Open Graph banner, and JSON-LD @graph in index.html
+  assert.ok(indexHtml.includes('hreflang="en-IN"'), 'index.html must include hreflang="en-IN"');
+  assert.ok(indexHtml.includes('hreflang="en-US"'), 'index.html must include hreflang="en-US"');
+  assert.ok(indexHtml.includes('hreflang="x-default"'), 'index.html must include hreflang="x-default"');
+  assert.ok(indexHtml.includes('https://biodata.cogify.me/og-banner.png'), 'index.html must reference og-banner.png');
+  assert.ok(indexHtml.includes('"@graph"'), 'index.html must include Schema.org @graph JSON-LD');
+
+  // Verify 15 SEO landing routes exist and are linked in index.html & sitemap.xml
+  assert.equal(SEO_LANDING_ROUTES.length, 15, 'Expected 15 SEO landing routes');
+  const sitemapXml = fs.readFileSync(path.join(PROJECT_ROOT, 'public/sitemap.xml'), 'utf8');
+  for (const route of SEO_LANDING_ROUTES) {
+    assert.ok(indexHtml.includes(`/${route.slug}`), `index.html must link to /${route.slug}`);
+    assert.ok(sitemapXml.includes(`https://biodata.cogify.me/${route.slug}`), `sitemap.xml must include /${route.slug}`);
+  }
+
+  // Verify lazy dynamic import() in src/utils/exporters.js
+  const exportersJs = fs.readFileSync(path.join(PROJECT_ROOT, 'src/utils/exporters.js'), 'utf8');
+  assert.ok(exportersJs.includes("import('html2canvas')"), 'exporters.js must lazy-load html2canvas via dynamic import()');
+  assert.ok(exportersJs.includes("import('jspdf')"), 'exporters.js must lazy-load jspdf via dynamic import()');
+  assert.ok(exportersJs.includes("import('docx')"), 'exporters.js must lazy-load docx via dynamic import()');
+  assert.ok(!exportersJs.includes("from 'html2canvas'"), 'exporters.js must not statically import html2canvas at top level');
+  assert.ok(!exportersJs.includes("from 'jspdf'"), 'exporters.js must not statically import jspdf at top level');
+  assert.ok(!exportersJs.includes("from 'docx'"), 'exporters.js must not statically import docx at top level');
+
+  // Verify README includes screenshots, tables, og-banner, and cogify.me references
+  const readmeMd = fs.readFileSync(path.join(PROJECT_ROOT, 'README.md'), 'utf8');
+  assert.ok(readmeMd.includes('public/og-banner.png'), 'README.md must display public/og-banner.png');
+  assert.ok(readmeMd.includes('public/screenshots/desktop-studio-live-preview.png'), 'README.md must embed desktop screenshot');
+  assert.ok(readmeMd.includes('https://biodata.cogify.me'), 'README.md must link to https://biodata.cogify.me');
+  assert.ok(readmeMd.includes('https://cogify.me'), 'README.md must link to https://cogify.me');
+});
+
 
 
 

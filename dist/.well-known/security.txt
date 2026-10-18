@@ -1,0 +1,6 @@
+Contact: https://cogify.me
+Contact: https://github.com/Shubham-sharma8/biodata/issues
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en, hi
+Canonical: https://biodata.cogify.me/.well-known/security.txt
+Policy: https://github.com/Shubham-sharma8/biodata/blob/main/README.md

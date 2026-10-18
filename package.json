@@ -1,17 +1,49 @@
 {
   "name": "biodata-cogify",
-  "version": "2.1.0",
-  "description": "Free Marriage Biodata Maker Online by COGIFY (biodata.cogify.me) — Instant Live Preview, 160+ Cultural & Modern Templates, Cookie Auto-Save, PDF, HD PNG/JPG & Editable Word (.docx) Export",
+  "version": "2.2.0",
+  "description": "Free Online Marriage Biodata Maker by Cogify.me (biodata.cogify.me) — 242+ Cultural & Modern A4 Templates, 14 Structural Layouts, Instant Live Preview, 300 DPI PDF, HD PNG & Editable Word (.docx) Export with Zero Watermark.",
+  "homepage": "https://biodata.cogify.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shubham-sharma8/biodata.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Shubham-sharma8/biodata/issues"
+  },
+  "author": {
+    "name": "Cogify.me",
+    "url": "https://cogify.me"
+  },
+  "license": "MIT",
+  "keywords": [
+    "marriage-biodata",
+    "biodata-maker",
+    "marriage-biodata-maker",
+    "matrimonial-biodata",
+    "shadi-biodata",
+    "hindu-marriage-biodata",
+    "muslim-nikah-biodata",
+    "sikh-marriage-biodata",
+    "jain-marriage-biodata",
+    "christian-marriage-biodata",
+    "marathi-lagna-biodata",
+    "gujarati-marriage-biodata",
+    "kundali-biodata",
+    "biodata-pdf-generator",
+    "biodata-word-format",
+    "cloudflare-workers",
+    "cogify"
+  ],
   "type": "module",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/generate-seo-pages.mjs",
     "preview": "vite preview",
-    "cf:deploy": "vite build && npx wrangler deploy",
-    "cf:dev": "vite build && npx wrangler dev",
+    "cf:deploy": "npm run build && npx wrangler deploy",
+    "cf:dev": "npm run build && npx wrangler dev",
     "ingest": "node scripts/ingest-templates.mjs",
     "test": "node --test tests/quality-assurance.test.mjs"
   },

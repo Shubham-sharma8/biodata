@@ -49,6 +49,7 @@ import {
   loadPreviousSnapshotFromCookies,
   getSavedCookieSummary
 } from './utils/cookies.js';
+import { applySeoRouteContext } from './seo/seoRouter.js';
 
 const STORAGE_KEY = 'biodatamaker_free_state_v1';
 const FAVORITES_STORAGE_KEY = 'biodatamaker_favorite_templates_v1';
@@ -2813,6 +2814,30 @@ function bindWorkspaceEvents() {
  * Initialize Application on DOMContentLoaded
  */
 function initApp() {
+  applySeoRouteContext({
+    onSelectPreset: (presetId) => {
+      const preset = COMMUNITY_PRESETS.find((p) => p.id === presetId);
+      if (preset && typeof preset.apply === 'function') {
+        appState = normalizeStateShape(preset.apply());
+      }
+    },
+    onSelectLanguage: (langCode) => {
+      if (langCode && LANGUAGE_LABELS[langCode]) {
+        const dict = LANGUAGE_LABELS[langCode];
+        appState.language = langCode;
+        if (dict.docTitle) appState.docTitle = dict.docTitle;
+        for (const sec of appState.sections || []) {
+          if (dict.sections && dict.sections[sec.id]) sec.title = dict.sections[sec.id];
+          for (const f of sec.fields || []) {
+            if (dict.fields && dict.fields[f.key]) f.label = dict.fields[f.key];
+          }
+        }
+      }
+    },
+    onSelectCategory: (cat) => {
+      galleryFilters.category = cat;
+    }
+  });
   renderDatalists();
   renderEditorForm();
   renderA4Sheet();

@@ -2,8 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "biodata-cogify",
   "compatibility_date": "2025-02-01",
+  "observability": {
+    "enabled": true
+  },
   "assets": {
     "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
     "not_found_handling": "single-page-application"
   }
 }

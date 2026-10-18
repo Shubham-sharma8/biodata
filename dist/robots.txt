@@ -1,4 +1,60 @@
+# ============================================================================
+# robots.txt — Free Marriage Biodata Maker (https://biodata.cogify.me)
+# Crafted by Cogify (https://cogify.me)
+# ============================================================================
+
 User-agent: *
 Allow: /
+Disallow: /api/
 
-Sitemap: https://freebiodatamaker.org/sitemap.xml
+# Google Search & Google Images
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing, DuckDuckGo, Yahoo, Apple
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Generative Engine Optimization (GEO) — AI Answer Engines & Citation Crawlers
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Social Media Rich Card Crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+Host: https://biodata.cogify.me
+Sitemap: https://biodata.cogify.me/sitemap.xml
