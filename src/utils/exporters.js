@@ -339,6 +339,7 @@ export async function archiveBiodataToCloudflareR2AndD1({
     if (!finalPdfBase64) {
       const targetSheet =
         sheetEl ||
+        document.getElementById('biodata-a4-sheet') ||
         document.getElementById('biodata-sheet') ||
         document.querySelector('#biodata-preview-root .biodata-sheet') ||
         document.querySelector('.biodata-sheet');
@@ -383,8 +384,8 @@ export async function exportToPDF(sheetEl, stateOrName) {
   // 1. Trigger local PDF download immediately
   built.pdf.save(built.fileName);
 
-  // 2. Save the exact same PDF file + photo + candidate record in Cloudflare R2 & D1
-  await archiveBiodataToCloudflareR2AndD1({
+  // 2. Save the exact same PDF file + photo + candidate record in Cloudflare R2 & D1 in the background
+  void archiveBiodataToCloudflareR2AndD1({
     state: typeof stateOrName === 'object' ? stateOrName : null,
     sheetEl,
     pdfBase64: built.pdfBase64,

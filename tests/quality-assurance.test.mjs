@@ -737,6 +737,29 @@ test('QA-20: Global SEO/GEO files, compact index.html (< 1000 lines), lazy-loade
     pkgLock.packages[''].devDependencies,
     'package.json devDependencies must exactly match package-lock.json root devDependencies for npm ci'
   );
+
+  // Verify default favorite template IDs in src/main.js are valid template IDs in TEMPLATES
+  const mainJs = fs.readFileSync(path.join(PROJECT_ROOT, 'src/main.js'), 'utf8');
+  const favMatch = mainJs.match(/const DEFAULT_FAVORITE_TEMPLATE_IDS = \[([^\]]+)\]/);
+  assert.ok(favMatch, 'src/main.js must define DEFAULT_FAVORITE_TEMPLATE_IDS');
+  const defaultFavIds = [...favMatch[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  assert.ok(defaultFavIds.length >= 3, 'DEFAULT_FAVORITE_TEMPLATE_IDS should contain at least 3 templates');
+  for (const favId of defaultFavIds) {
+    assert.ok(
+      TEMPLATES.some((t) => t.id === favId),
+      `Default favorite template ID "${favId}" must exist in TEMPLATES`
+    );
+  }
+
+  // Verify dist/index.html has zero eager modulepreload tags for heavy export chunks
+  const distIndexPath = path.join(PROJECT_ROOT, 'dist/index.html');
+  if (fs.existsSync(distIndexPath)) {
+    const distIndexHtml = fs.readFileSync(distIndexPath, 'utf8');
+    assert.ok(
+      !distIndexHtml.includes('rel="modulepreload"'),
+      'dist/index.html must not eagerly modulepreload heavy export vendor chunks on initial page load'
+    );
+  }
 });
 
 // 21. Cloudflare R2 Bucket (`biodata` folder: PDF + Photo + Data JSON) & D1 Database (`biodata` sortable SQL tables)
