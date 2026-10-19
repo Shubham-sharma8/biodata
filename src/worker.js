@@ -7,7 +7,11 @@
  *                                 sortable candidate rows into Cloudflare D1 (`biodata`).
  *  - GET  /api/downloads        : Queries and sorts saved candidates from Cloudflare D1.
  *  - GET  /api/r2/*             : Streams stored PDF, photo, or JSON files from R2 (`biodata`).
+ *  - GET  /api/seo/status       : Exposes canonical sitemap URLs, IndexNow key, and SSR route inventory.
  *  - GET  /api/health           : Verifies R2 bucket and D1 database bindings.
+ *  - Static / SSR Routing       : Enforces single-hop trailing-slash canonicalization,
+ *                                 serves pre-rendered SSR HTML with `X-Robots-Tag: index, follow`,
+ *                                 and returns true HTTP 404 (`noindex, nofollow`) for unknown routes.
  */
 
 import {
@@ -19,17 +23,24 @@ import {
   ensureD1Tables,
   saveBiodataToR2AndD1
 } from './server/cloudflareArchive.js';
+import { SEO_LANDING_ROUTES, SITE_ORIGIN } from './seo/seoRouter.js';
+
+const INDEXNOW_KEY = 'c0g1fyb10d4t4m4k3r20261nd3xn0wk3y';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'X-Robots-Tag': 'noindex, nofollow'
 };
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // -------------------------------------------------------------------------
+    // API Endpoints (`/api/*`) — Tagged `noindex, nofollow`
+    // -------------------------------------------------------------------------
     if (url.pathname.startsWith('/api/')) {
       if (request.method === 'OPTIONS') {
         return new Response(null, { status: 204, headers: CORS_HEADERS });
@@ -57,7 +68,28 @@ export default {
         );
       }
 
-      // 2. Archive Downloaded PDF + Photo + Data into R2 (`biodata/`) and D1 (`biodata`)
+      // 2. SEO Indexing & Search Console / IndexNow Readiness Endpoint
+      if (url.pathname === '/api/seo/status' && request.method === 'GET') {
+        const canonicalUrls = [
+          `${SITE_ORIGIN}/`,
+          ...SEO_LANDING_ROUTES.map((r) => `${SITE_ORIGIN}${r.path}`)
+        ];
+        return Response.json(
+          {
+            ok: true,
+            siteOrigin: SITE_ORIGIN,
+            sitemapUrl: `${SITE_ORIGIN}/sitemap.xml`,
+            robotsUrl: `${SITE_ORIGIN}/robots.txt`,
+            indexNowKey: INDEXNOW_KEY,
+            indexNowKeyLocation: `${SITE_ORIGIN}/cogify-indexnow-key.txt`,
+            totalCanonicalPages: canonicalUrls.length,
+            canonicalUrls
+          },
+          { headers: CORS_HEADERS }
+        );
+      }
+
+      // 3. Archive Downloaded PDF + Photo + Data into R2 (`biodata/`) and D1 (`biodata`)
       if (url.pathname === '/api/archive-download' && request.method === 'POST') {
         try {
           const payload = await request.json();
@@ -88,7 +120,7 @@ export default {
         }
       }
 
-      // 3. Query & Sort Saved D1 Table Records (`GET /api/downloads?sort=date|name|age&religion=...`)
+      // 4. Query & Sort Saved D1 Table Records (`GET /api/downloads?sort=date|name|age&religion=...`)
       if (url.pathname === '/api/downloads' && request.method === 'GET') {
         if (!env.DB) {
           return Response.json(
@@ -140,7 +172,7 @@ export default {
         }
       }
 
-      // 4. Stream Stored PDF / Photo / JSON from R2 Bucket (`GET /api/r2/biodata/...`)
+      // 5. Stream Stored PDF / Photo / JSON from R2 Bucket (`GET /api/r2/biodata/...`)
       if (url.pathname.startsWith('/api/r2/') && request.method === 'GET') {
         if (!env.BIODATA_BUCKET) {
           return Response.json(
@@ -174,11 +206,40 @@ export default {
       return Response.json({ ok: false, error: 'API route not found' }, { status: 404, headers: CORS_HEADERS });
     }
 
-    // Serve static assets & pre-rendered SEO landing routes
-    if (env.ASSETS) {
-      return env.ASSETS.fetch(request);
+    // -------------------------------------------------------------------------
+    // Single-Hop Canonical Normalization (Eliminate Trailing-Slash Redirect Chains)
+    // -------------------------------------------------------------------------
+    if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
+      const cleanPath = url.pathname.replace(/\/+$/, '');
+      return Response.redirect(`${url.origin}${cleanPath}${url.search}`, 301);
     }
 
-    return new Response('Not Found', { status: 404 });
+    // -------------------------------------------------------------------------
+    // Serve Pre-Rendered SSR Pages & Static Assets with Explicit Bot Headers
+    // -------------------------------------------------------------------------
+    if (env.ASSETS) {
+      const assetRes = await env.ASSETS.fetch(request);
+      const headers = new Headers(assetRes.headers);
+      if (assetRes.status === 404) {
+        headers.set('X-Robots-Tag', 'noindex, nofollow');
+      } else {
+        const contentType = headers.get('content-type') || '';
+        if (contentType.includes('text/html')) {
+          headers.set('X-Robots-Tag', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+          const canonicalHref = url.pathname === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${url.pathname}`;
+          headers.set('Link', `<${canonicalHref}>; rel="canonical"`);
+        }
+      }
+      return new Response(assetRes.body, {
+        status: assetRes.status,
+        statusText: assetRes.statusText,
+        headers
+      });
+    }
+
+    return new Response('Not Found', {
+      status: 404,
+      headers: { 'X-Robots-Tag': 'noindex, nofollow', 'Content-Type': 'text/plain; charset=utf-8' }
+    });
   }
 };

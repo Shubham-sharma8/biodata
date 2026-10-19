@@ -43,7 +43,7 @@ export function escapeHtml(str) {
 export function getEmblemMarkup(state, color) {
   if (!state || state.showEmblem === false || state.emblemId === 'none') return '';
   if (state.customEmblemDataUrl) {
-    return `<div class="sheet-emblem-icon" data-canvas-element="emblem"><img src="${escapeHtml(state.customEmblemDataUrl)}" alt="Sacred Emblem" /></div>`;
+    return `<div class="sheet-emblem-icon" data-canvas-element="emblem"><img src="${escapeHtml(state.customEmblemDataUrl)}" alt="Sacred Auspicious Emblem" width="38" height="38" decoding="async" /></div>`;
   }
   const found = EMBLEMS.find((e) => e.id === state.emblemId) || EMBLEMS[0];
   if (!found || found.id === 'none') return '';
@@ -349,7 +349,10 @@ export function buildBiodataSheetMarkup(state, templateOverride = null) {
     ? `<div class="sheet-photo-frame shape-${escapeHtml(photoShape)}" data-canvas-element="photo" style="width:${pw}px;height:${ph}px;${photoBorderStyleCss}">
          <img
            src="${escapeHtml(safeState.photo.dataUrl)}"
-           alt="Candidate Portrait"
+           alt="${escapeHtml(candidateName ? `${candidateName} Marriage Biodata Portrait` : 'Candidate Marriage Biodata Portrait')}"
+           width="${pw}"
+           height="${ph}"
+           decoding="async"
            style="${photoFilterCss}"
            onerror="this.style.display='none';this.parentElement.classList.add('photo-load-fallback');"
          />
@@ -506,7 +509,7 @@ export function buildBiodataSheetMarkup(state, templateOverride = null) {
                 }
               </div>
             </div>
-            ${candidateName ? `<h1 class="magazine-cover-name">${escapeHtml(candidateName)}</h1>` : ''}
+            ${candidateName ? `<h2 class="magazine-cover-name">${escapeHtml(candidateName)}</h2>` : ''}
             ${candidateRole ? `<div class="magazine-cover-role">${escapeHtml(candidateRole)}</div>` : ''}
             <div class="magazine-cover-Divider"></div>
             ${firstSec ? renderSectionHtml(firstSec, embedKundaliInSec) : ''}

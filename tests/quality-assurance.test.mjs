@@ -50,7 +50,8 @@ import {
   getSavedCookieSummary,
   clearBiodataCookies
 } from '../src/utils/cookies.js';
-import { SEO_LANDING_ROUTES } from '../src/seo/seoRouter.js';
+import { SEO_LANDING_ROUTES, AUTHOR_PROFILE } from '../src/seo/seoRouter.js';
+import worker from '../src/worker.js';
 import {
   R2_BUCKET_NAME,
   D1_DATABASE_NAME,
@@ -810,6 +811,165 @@ test('QA-21: Cloudflare R2 bucket and D1 database archiving stores PDF, photo, a
   assert.ok(gitignore.includes('.env'), '.gitignore must ignore .env');
   assert.ok(gitignore.includes('.dev.vars'), '.gitignore must ignore .dev.vars');
 });
+
+// 22. Complete Technical SEO & Indexing Checklist Verification (SSR, 1 H1, Breadcrumbs, E-E-A-T, WebP, CLS=0, 404/301 Worker)
+test('QA-22: Full SSR HTML output, strictly 1 H1 per page, unique route content, WebP assets, img dimensions/alt, E-E-A-T bio, and Worker 301/404/200 indexing rules', async () => {
+  // 1. Verify AUTHOR_PROFILE and enriched SEO_LANDING_ROUTES
+  assert.equal(AUTHOR_PROFILE.name, 'Shubham Sharma');
+  assert.ok(AUTHOR_PROFILE.url.includes('cogify.me'));
+  for (const route of SEO_LANDING_ROUTES) {
+    assert.ok(route.breadcrumbName && route.breadcrumbName.length > 3, `Route ${route.slug} must have breadcrumbName`);
+    assert.ok(route.guideTitle && route.guideTitle.length > 10, `Route ${route.slug} must have guideTitle`);
+    assert.ok(Array.isArray(route.mustHaveRows) && route.mustHaveRows.length >= 3, `Route ${route.slug} must have >= 3 mustHaveRows`);
+    assert.ok(Array.isArray(route.faqs) && route.faqs.length >= 2, `Route ${route.slug} must have >= 2 route-specific FAQs`);
+  }
+
+  // 2. Verify WebP assets exist on disk alongside PNGs
+  const webpFiles = [
+    'public/og-banner.webp',
+    'public/icon-512.webp',
+    'public/icon-192.webp',
+    'public/apple-touch-icon.webp',
+    'public/screenshots/desktop-studio-live-preview.webp',
+    'public/screenshots/exported-a4-biodata-sample.webp',
+    'public/screenshots/mobile-responsive-studio.webp',
+    'public/screenshots/template-comparison-modal.webp',
+    'public/cogify-indexnow-key.txt',
+    'public/404.html'
+  ];
+  for (const relPath of webpFiles) {
+    assert.ok(fs.existsSync(path.join(PROJECT_ROOT, relPath)), `Required WebP/SEO asset missing: ${relPath}`);
+  }
+
+  // 3. Verify built dist/ SSR pages if dist/ exists
+  const distDir = path.join(PROJECT_ROOT, 'dist');
+  assert.ok(fs.existsSync(path.join(distDir, 'index.html')), 'dist/index.html must exist (run npm run build)');
+  assert.ok(fs.existsSync(path.join(distDir, '404.html')), 'dist/404.html must exist');
+
+  const htmlFilesToCheck = [
+    { rel: 'index.html', expectedCanonical: 'https://biodata.cogify.me/' },
+    ...SEO_LANDING_ROUTES.map((r) => ({
+      rel: `${r.slug}.html`,
+      expectedCanonical: `https://biodata.cogify.me/${r.slug}`,
+      route: r
+    }))
+  ];
+
+  const seenTitles = new Set();
+  const seenDescriptions = new Set();
+
+  for (const item of htmlFilesToCheck) {
+    const fullPath = path.join(distDir, item.rel);
+    assert.ok(fs.existsSync(fullPath), `Expected pre-rendered SSR file ${item.rel} in dist/`);
+    const html = fs.readFileSync(fullPath, 'utf8');
+
+    // Strictly 1 <h1> tag per page
+    const h1Matches = html.match(/<h1\b[^>]*>/gi) || [];
+    assert.equal(h1Matches.length, 1, `Expected strictly 1 <h1> in dist/${item.rel}, found ${h1Matches.length}`);
+
+    // Canonical tag matches exact URL with zero trailing-slash mismatch
+    assert.ok(
+      html.includes(`<link rel="canonical" href="${item.expectedCanonical}" />`),
+      `dist/${item.rel} must have self-referencing canonical ${item.expectedCanonical}`
+    );
+
+    // Unique <title> and <meta name="description">
+    const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+    assert.ok(titleMatch && titleMatch[1].trim().length > 20, `dist/${item.rel} must have a descriptive <title>`);
+    assert.ok(!seenTitles.has(titleMatch[1]), `Duplicate <title> found in dist/${item.rel}: ${titleMatch[1]}`);
+    seenTitles.add(titleMatch[1]);
+
+    const descMatch = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i);
+    assert.ok(descMatch && descMatch[1].trim().length >= 80, `dist/${item.rel} must have a meta description >= 80 chars`);
+    assert.ok(!seenDescriptions.has(descMatch[1]), `Duplicate meta description found in dist/${item.rel}`);
+    seenDescriptions.add(descMatch[1]);
+
+    // Pre-rendered SSR A4 sheet, form sections, and gallery cards exist inside HTML
+    assert.ok(html.includes('data-page-count="') && html.includes('data-template-id="'), `dist/${item.rel} must contain pre-rendered SSR #biodata-a4-sheet markup`);
+    assert.ok(html.includes('class="editor-card section-editor-card"'), `dist/${item.rel} must contain pre-rendered SSR .section-editor-card markup`);
+    assert.ok(html.includes('class="template-gallery-card'), `dist/${item.rel} must contain pre-rendered SSR .template-gallery-card gallery markup`);
+
+    // Visible Breadcrumb navigation, Cultural Format Guide, and E-E-A-T Author Bio
+    assert.ok(html.includes('id="seo-breadcrumb-nav"'), `dist/${item.rel} must contain visible #seo-breadcrumb-nav`);
+    assert.ok(html.includes('id="route-cultural-guide"'), `dist/${item.rel} must contain #route-cultural-guide`);
+    assert.ok(html.includes('id="author-eeat-bio"'), `dist/${item.rel} must contain #author-eeat-bio`);
+    assert.ok(html.includes('Shubham Sharma'), `dist/${item.rel} must credit author Shubham Sharma for E-E-A-T`);
+
+    // Route-specific content verification
+    if (item.route) {
+      const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      assert.ok(html.includes(escapeHtml(item.route.h1)), `dist/${item.rel} must include route H1 "${item.route.h1}"`);
+      assert.ok(html.includes(escapeHtml(item.route.faqs[0].q)), `dist/${item.rel} must include route-specific FAQ question`);
+    }
+
+    // Verify JSON-LD @graph contains Organization, Person, WebSite, WebPage, WebApplication, BreadcrumbList, HowTo, FAQPage
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json" id="seo-jsonld-graph">\s*([\s\S]*?)\s*<\/script>/i);
+    assert.ok(jsonLdMatch, `dist/${item.rel} must contain #seo-jsonld-graph JSON-LD script`);
+    const parsedLd = JSON.parse(jsonLdMatch[1]);
+    const graphTypes = new Set((parsedLd['@graph'] || []).map((n) => n['@type']));
+    for (const requiredType of ['Organization', 'Person', 'WebSite', 'WebPage', 'WebApplication', 'BreadcrumbList', 'HowTo', 'FAQPage']) {
+      assert.ok(graphTypes.has(requiredType), `dist/${item.rel} JSON-LD @graph must include ${requiredType}`);
+    }
+
+    // Verify every <img> tag has non-empty alt, width, and height attributes
+    const imgTags = html.match(/<img\b[^>]*>/gi) || [];
+    assert.ok(imgTags.length >= 3, `Expected at least 3 <img> tags in dist/${item.rel}`);
+    for (const imgTag of imgTags) {
+      assert.ok(/\balt="[^"]+"/i.test(imgTag), `<img> tag missing non-empty alt attribute in dist/${item.rel}: ${imgTag}`);
+      assert.ok(/\bwidth="\d+"/i.test(imgTag), `<img> tag missing explicit width attribute in dist/${item.rel}: ${imgTag}`);
+      assert.ok(/\bheight="\d+"/i.test(imgTag), `<img> tag missing explicit height attribute in dist/${item.rel}: ${imgTag}`);
+    }
+  }
+
+  // 4. Verify 404.html has strictly 1 <h1> and noindex meta
+  const html404 = fs.readFileSync(path.join(distDir, '404.html'), 'utf8');
+  assert.equal((html404.match(/<h1\b[^>]*>/gi) || []).length, 1, '404.html must have strictly 1 <h1>');
+  assert.ok(html404.includes('noindex, nofollow'), '404.html must include noindex, nofollow');
+
+  // 5. Verify Worker HTTP behavior (301 trailing-slash redirect, /api/seo/status, 404 noindex, 200 canonical + X-Robots-Tag)
+  const mockEnv = {
+    ASSETS: {
+      async fetch(req) {
+        const u = new URL(req.url);
+        if (u.pathname === '/' || u.pathname === '/hindu-marriage-biodata') {
+          return new Response('<!doctype html><html><body>OK</body></html>', {
+            status: 200,
+            headers: { 'content-type': 'text/html; charset=utf-8' }
+          });
+        }
+        return new Response('Not Found', {
+          status: 404,
+          headers: { 'content-type': 'text/html; charset=utf-8' }
+        });
+      }
+    }
+  };
+
+  // 5a. Trailing slash -> 301 single-hop redirect
+  const resRedirect = await worker.fetch(new Request('https://biodata.cogify.me/hindu-marriage-biodata/'), mockEnv);
+  assert.equal(resRedirect.status, 301, 'Trailing slash URL must return 301 Permanent Redirect');
+  assert.equal(resRedirect.headers.get('location'), 'https://biodata.cogify.me/hindu-marriage-biodata');
+
+  // 5b. Canonical 200 HTML response -> X-Robots-Tag: index, follow + Link canonical header
+  const resOk = await worker.fetch(new Request('https://biodata.cogify.me/hindu-marriage-biodata'), mockEnv);
+  assert.equal(resOk.status, 200);
+  assert.ok(resOk.headers.get('x-robots-tag').includes('index, follow'), '200 HTML response must emit X-Robots-Tag: index, follow');
+  assert.equal(resOk.headers.get('link'), '<https://biodata.cogify.me/hindu-marriage-biodata>; rel="canonical"');
+
+  // 5c. Unknown path -> true HTTP 404 Not Found + X-Robots-Tag: noindex, nofollow (Zero Soft 404s)
+  const res404 = await worker.fetch(new Request('https://biodata.cogify.me/non-existent-random-page-xyz'), mockEnv);
+  assert.equal(res404.status, 404, 'Unknown route must return HTTP 404 Not Found (no Soft 404)');
+  assert.equal(res404.headers.get('x-robots-tag'), 'noindex, nofollow');
+
+  // 5d. /api/seo/status -> 200 JSON with X-Robots-Tag: noindex, nofollow
+  const resSeoStatus = await worker.fetch(new Request('https://biodata.cogify.me/api/seo/status'), mockEnv);
+  assert.equal(resSeoStatus.status, 200);
+  assert.equal(resSeoStatus.headers.get('x-robots-tag'), 'noindex, nofollow');
+  const seoStatusBody = await resSeoStatus.json();
+  assert.equal(seoStatusBody.ok, true);
+  assert.equal(seoStatusBody.totalCanonicalPages, 16);
+});
+
 
 
 

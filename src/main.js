@@ -2821,6 +2821,11 @@ function initApp() {
         appState = normalizeStateShape(preset.apply());
       }
     },
+    onSelectTemplate: (templateId) => {
+      if (templateId && getTemplateById(templateId)) {
+        appState.templateId = templateId;
+      }
+    },
     onSelectLanguage: (langCode) => {
       if (langCode && LANGUAGE_LABELS[langCode]) {
         const dict = LANGUAGE_LABELS[langCode];
