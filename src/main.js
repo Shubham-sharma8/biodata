@@ -2812,6 +2812,31 @@ function bindWorkspaceEvents() {
     document.getElementById('preview-column')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
+  // 14. Unified COGIFY.ME Theme Toggle (Header + Footer) synced with localStorage('cogify-theme')
+  const syncThemeUiLabel = () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    const footerLabel = document.getElementById('footer-theme-label');
+    if (footerLabel) {
+      footerLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+  };
+  const toggleCogifyTheme = () => {
+    const isDark = document.documentElement.classList.contains('dark');
+    const nextTheme = isDark ? 'light' : 'dark';
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    try {
+      localStorage.setItem('cogify-theme', nextTheme);
+    } catch {
+      // ignore storage error
+    }
+    syncThemeUiLabel();
+  };
+  document.getElementById('btn-theme-toggle')?.addEventListener('click', toggleCogifyTheme);
+  document.getElementById('btn-footer-theme-toggle')?.addEventListener('click', toggleCogifyTheme);
+  syncThemeUiLabel();
+
   document.getElementById('mobile-bottom-nav')?.addEventListener('click', (e) => {
     const navBtn = e.target.closest('[data-mobile-bottom]');
     if (!navBtn) return;
