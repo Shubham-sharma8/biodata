@@ -2668,10 +2668,13 @@ function bindWorkspaceEvents() {
     renderFullTemplateGallery();
   });
 
-  document.getElementById('btn-show-all-templates')?.addEventListener('click', () => {
+  const expandAllTemplates = () => {
     galleryVisibleLimit = TEMPLATES.length;
     renderFullTemplateGallery();
-  });
+  };
+
+  document.getElementById('btn-show-all-templates')?.addEventListener('click', expandAllTemplates);
+  document.getElementById('btn-top-show-all-templates')?.addEventListener('click', expandAllTemplates);
 
   // Preview Modal Actions
   document.getElementById('btn-close-preview-modal')?.addEventListener('click', closeTemplatePreviewModal);

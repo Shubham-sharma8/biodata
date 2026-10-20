@@ -86,8 +86,8 @@
         } catch (e) {}
       })();
     </script>
-    <script type="module" crossorigin src="/assets/index-CcOJ5251.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Cb0lN0bL.css">
+    <script type="module" crossorigin src="/assets/index-BOlb6rgF.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dxxe3WEt.css">
   </head>
   <body>
     <div id="datalist-container" aria-hidden="true"></div>
@@ -122,9 +122,6 @@
           <a href="#route-cultural-guide" class="nav-pill-link">Format Guide</a>
           <a href="#community-formats" class="nav-pill-link">Communities</a>
           <a href="#faq" class="nav-pill-link">FAQ</a>
-          <span class="cogify-nav-sep" aria-hidden="true"></span>
-          <a href="https://cogify.me/products" class="nav-pill-link cogify-eco-link">Apps &amp; Studios <span class="cogify-nav-badge indigo">8 Free</span></a>
-          <a href="https://cogify.me/about" class="nav-pill-link cogify-eco-link">About</a>
         </nav>
 
         <div class="header-badges cogify-header-actions">
@@ -133,8 +130,7 @@
             <svg class="theme-icon-sun" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
             <svg class="theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
           </button>
-          <a href="https://apps.apple.com/in/developer/shubham-sharma/id1643497398" target="_blank" rel="noopener noreferrer" class="cogify-btn-store">App Store ↗</a>
-          <a href="https://cogify.me/products" class="cogify-btn-explore">Explore All Apps</a>
+          <a href="#templates-gallery" class="cogify-btn-explore" id="btn-header-all-templates" title="Browse and expand all 242 A4 marriage biodata templates">All 242 Templates &darr;</a>
         </div>
       </div>
     </header>
@@ -629,7 +625,7 @@
             <span>Active Template: <strong id="active-template-name">Anand Karaj Royal Blue</strong></span>
             <div class="template-strip-actions">
               <button type="button" class="strip-action-link" id="btn-strip-compare" title="Compare templates side-by-side">⚖ Compare</button>
-              <a href="#templates-gallery" class="strip-action-link primary-link">All 242 Templates &darr;</a>
+              <a href="#templates-gallery" class="strip-action-link primary-link" id="btn-strip-all-templates">All 242 Templates &darr;</a>
             </div>
           </div>
           <div id="template-pills-scroll" class="template-pills-scroll"></div>
@@ -903,6 +899,7 @@
             <input type="search" id="gallery-search-input" class="text-input gallery-search-input" placeholder="Search 242 templates by name, community, layout, border, or keyword (e.g., 'Paithani', 'Nikah', 'Kundali', 'Magazine', 'Palace', 'Two-Page', 'Mandala')..." aria-label="Search templates by name or keyword" />
           </div>
           <div class="gallery-quick-toggles">
+            <button type="button" class="btn-chip primary-chip" id="btn-top-show-all-templates" title="Expand and show all 242 marriage biodata templates">🎨 Show All 242 Templates</button>
             <button type="button" class="btn-chip" id="btn-filter-recent" aria-pressed="false" title="Filter recently added templates">✨ Recently Added</button>
             <button type="button" class="btn-chip" id="btn-filter-favorites" aria-pressed="false" title="Show your saved favorite templates">♥ Favorites (<span id="favorites-count-badge">0</span>)</button>
             <button type="button" class="btn-chip btn-compare-trigger" id="btn-open-compare-modal" title="Open Side-by-Side Live Preview Comparison">⚖ Compare Preview (<span id="compare-count-badge">0</span>/3)</button>
@@ -1839,12 +1836,12 @@
       <button type="button" class="mobile-nav-item primary-download" data-mobile-bottom="pdf" id="btn-bottom-pdf"><span class="mobile-nav-icon">⬇</span><span>Download PDF</span></button>
     </nav>
 
-    <!-- Footer — Unified with cogify.me 4-Column Ecosystem Footer -->
+    <!-- Footer — Unified with cogify.me 4-Column Design System -->
     <footer class="site-footer cogify-unified-footer" id="about-cogify">
       <div class="cogify-footer-container">
         <div class="cogify-footer-grid">
-          <!-- Column 1: Brand & Architecture (4 cols) -->
-          <div class="cogify-footer-brand-col">
+          <!-- Column 1: Brand & Architecture -->
+          <div class="cogify-footer-col">
             <div class="cogify-footer-brand-row">
               <a href="https://cogify.me" class="cogify-main-brand" aria-label="COGIFY Technologies Home">
                 <span class="cogify-logo-box">
@@ -1857,40 +1854,37 @@
                 </span>
               </a>
               <span class="cogify-brand-divider" aria-hidden="true"></span>
-              <a href="https://biodata.cogify.me" class="cogify-studio-badge">BiodataMaker • v2.4</a>
+              <a href="https://biodata.cogify.me" class="cogify-studio-badge">Biodata Studio • v2.4</a>
             </div>
             <p class="cogify-footer-desc">
-              We engineer native, zero-telemetry software, Safari extensions, and real-time web studios for macOS, iOS, and modern browsers. Designed with precision and privacy at the core.
+              100% Free, Privacy-First Marriage Biodata Studio. 242 handcrafted A4 templates, interactive canvas editing, Vedic Kundali charts, and instant PDF, Word (.docx) &amp; HD PNG export.
             </p>
             <div class="cogify-footer-arch-pills">
-              <span class="cogify-arch-pill emerald">✓ Zero Cloud Telemetry</span>
-              <span class="cogify-arch-dot" aria-hidden="true">•</span>
-              <span class="cogify-arch-pill indigo">⚙ Swift, C++20 &amp; Web Studio</span>
+              <span class="cogify-arch-pill emerald">✓ 100% Free • Zero Watermark</span>
+              <span class="cogify-arch-pill indigo">🔒 100% Local Browser Privacy</span>
             </div>
             <p class="footer-cogify-line">
-              <strong>BiodataMaker</strong> (<a href="https://biodata.cogify.me">biodata.cogify.me</a>) is part of <a href="https://cogify.me" target="_blank" rel="noopener noreferrer"><strong>cogify.me</strong></a> — where your documents and personal data stay 100% on your device.
+              <strong>BiodataMaker</strong> (<a href="https://biodata.cogify.me">biodata.cogify.me</a>) is built by <a href="https://cogify.me" target="_blank" rel="noopener noreferrer"><strong>cogify.me</strong></a> — where your documents and personal data stay 100% on your device.
             </p>
           </div>
 
-          <!-- Column 2: Live Apps & Studios on cogify.me (3 cols) -->
-          <div class="cogify-footer-links-col">
-            <h3 class="cogify-footer-heading">Live Apps &amp; Studios</h3>
+          <!-- Column 2: Studio Workspace & Tools -->
+          <div class="cogify-footer-col">
+            <h3 class="cogify-footer-heading">Studio Workspace</h3>
             <ul class="cogify-footer-list">
-              <li><a href="https://cogify.me/biodata">Marriage Biodata Maker <span class="cogify-app-badge rose">Web v2.4</span></a></li>
-              <li><a href="https://cogify.me/products/emdoc">EmDoc PDF Workspace <span class="cogify-app-badge blue">macOS</span></a></li>
-              <li><a href="https://cogify.me/ad-blocker">Ad Blocker for Safari <span class="cogify-app-badge indigo">Safari v2.0</span></a></li>
-              <li><a href="https://cogify.me/readereasy">ReaderEasy <span class="cogify-app-badge amber">Safari v1.1</span></a></li>
-              <li><a href="https://cogify.me/webclear">WebClear <span class="cogify-app-badge cyan">Safari v1.0</span></a></li>
-              <li><a href="https://cogify.me/weblenses">WebLenses <span class="cogify-app-badge violet">Safari v1.0</span></a></li>
-              <li><a href="https://cogify.me/element-hider">Element Hider <span class="cogify-app-badge emerald">Safari v1.0</span></a></li>
-              <li><a href="https://cogify.me/invert">Colour Invert <span class="cogify-app-badge purple">Safari v1.0</span></a></li>
+              <li><a href="#builder-workspace">Live A4 Biodata Studio <span class="cogify-app-badge badge-rose">794×1123</span></a></li>
+              <li><a href="#templates-gallery">All 242 A4 Templates <span class="cogify-app-badge badge-indigo">14 Engines</span></a></li>
+              <li><a href="#why-free">Why 100% Free? <span class="cogify-app-badge badge-emerald">₹0 Forever</span></a></li>
+              <li><a href="#route-cultural-guide">Cultural Format Guide <span class="cogify-app-badge badge-amber">Etiquette</span></a></li>
+              <li><a href="#community-formats">Community Presets <span class="cogify-app-badge badge-violet">9 Languages</span></a></li>
+              <li><a href="#faq">Frequently Asked Questions</a></li>
             </ul>
           </div>
 
-          <!-- Column 3: Popular Marriage Biodata Formats (3 cols) -->
-          <div class="cogify-footer-links-col">
+          <!-- Column 3: Popular Marriage Biodata Formats -->
+          <div class="cogify-footer-col">
             <h3 class="cogify-footer-heading">Popular Biodata Formats</h3>
-            <div class="cogify-formats-pill-cloud">
+            <div class="cogify-footer-formats-cloud">
               <a href="/hindu-marriage-biodata">Hindu Biodata</a>
               <a href="/muslim-nikah-biodata">Muslim Nikah</a>
               <a href="/sikh-marriage-biodata">Sikh Biodata</a>
@@ -1909,33 +1903,29 @@
             </div>
           </div>
 
-          <!-- Column 4: Company, Legal & Store (2 cols) -->
-          <div class="cogify-footer-links-col">
+          <!-- Column 4: Company & Legal -->
+          <div class="cogify-footer-col">
             <h3 class="cogify-footer-heading">Company &amp; Legal</h3>
             <ul class="cogify-footer-list">
-              <li><a href="https://cogify.me/products">All Products</a></li>
-              <li><a href="https://cogify.me/enterprise">Enterprise</a></li>
-              <li><a href="https://cogify.me/suggestions">Feature &amp; Product Ideas</a></li>
+              <li><a href="https://cogify.me">COGIFY Home (cogify.me)</a></li>
               <li><a href="https://cogify.me/about">About COGIFY</a></li>
               <li><a href="https://cogify.me/contact">Contact &amp; Support</a></li>
               <li><a href="https://cogify.me/privacy">Privacy Policy</a></li>
               <li><a href="https://cogify.me/terms">Terms of Service</a></li>
-              <li><a href="https://apps.apple.com/in/developer/shubham-sharma/id1643497398" target="_blank" rel="noopener noreferrer">Apple Developer Page ↗</a></li>
               <li><a href="/sitemap.xml">XML Sitemap</a></li>
-              <li class="cogify-domain-tag">Domain: cogify.me</li>
             </ul>
           </div>
         </div>
 
         <div class="cogify-footer-bottom">
-          <p class="cogify-copyright">
-            &copy; 2026 COGIFY Technologies. All rights reserved. EmDoc, Biodata Maker (biodata.cogify.me), Ad Blocker, ReaderEasy, WebClear, WebLenses, Element Hider &amp; Colour Invert are products of COGIFY.
+          <p class="cogify-footer-copy">
+            &copy; 2026 COGIFY Technologies (<a href="https://cogify.me" style="color: inherit">cogify.me</a>). All rights reserved. Free Marriage Biodata Maker Studio at biodata.cogify.me.
           </p>
           <div class="cogify-footer-bottom-right">
             <button type="button" class="cogify-footer-theme-pill" id="btn-footer-theme-toggle" aria-label="Toggle Light or Dark Theme">
               <span class="footer-theme-label" id="footer-theme-label">Dark Mode</span>
             </button>
-            <span class="cogify-precision-tag">Designed with precision • macOS, iOS, Safari &amp; Web</span>
+            <span class="cogify-footer-tagline">Designed with precision • 100% Client-Side Privacy</span>
           </div>
         </div>
       </div>
