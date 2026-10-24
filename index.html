@@ -65,10 +65,11 @@
     <meta name="twitter:description" content="Build your A4 marriage biodata with real-time live preview &amp; 242 cultural templates. Download PDF, editable Word (.docx), and HD PNG/JPG for ₹0." />
     <meta name="twitter:image" content="https://biodata.cogify.me/og-banner.webp" />
 
-    <!-- Google Fonts Resource Hints -->
+    <!-- Google Fonts Resource Hints (Non-Render-Blocking) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Noto+Sans+Devanagari:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Noto+Sans+Devanagari:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Libre+Baskerville:wght@400;700&amp;family=Noto+Sans+Devanagari:wght@400;600;700&amp;family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" /></noscript>
 
     <!-- Schema.org JSON-LD Structured Data (@graph: Organization, Person, WebSite, WebPage, WebApplication, BreadcrumbList, HowTo, FAQPage) -->
     <script type="application/ld+json" id="seo-jsonld-graph">
@@ -94,10 +95,10 @@
     <header class="site-header" id="site-header">
       <div class="header-inner cogify-navbar-pill">
         <div class="cogify-brand-cluster">
-          <a href="https://cogify.me" class="cogify-main-brand" aria-label="COGIFY Technologies Main Website">
+          <a href="https://cogify.me" class="cogify-main-brand" title="COGIFY Technologies Main Website">
             <span class="cogify-logo-box">
               <img src="/brand/logo.webp" alt="COGIFY Technologies Logo" width="34" height="34" decoding="async" class="cogify-logo-img logo-light" />
-              <img src="/brand/logo_white.webp" alt="COGIFY Technologies Dark Logo" width="34" height="34" decoding="async" class="cogify-logo-img logo-dark" />
+              <img src="/brand/logo_white.webp" alt="COGIFY Technologies Dark Logo" width="34" height="34" loading="lazy" decoding="async" class="cogify-logo-img logo-dark" />
             </span>
             <span class="cogify-wordmark">
               <strong class="cogify-wordmark-title">COGIFY</strong>
@@ -105,7 +106,7 @@
             </span>
           </a>
           <span class="cogify-brand-divider" aria-hidden="true"></span>
-          <a href="/" class="brand-logo" aria-label="Biodata Maker Studio Home">
+          <a href="/" class="brand-logo" title="Biodata Maker Studio Home">
             <span class="brand-mark">B</span>
             <div class="brand-text">
               <strong>Biodata Studio</strong>
@@ -482,7 +483,7 @@
         </div>
 
         <div class="a4-preview-stage" id="a4-preview-stage">
-          <div class="a4-scale-holder" id="a4-scale-holder">
+          <div class="a4-scale-holder" id="a4-scale-holder" style="width:583px;height:825px">
             <div id="snap-guide-v" class="canvas-snap-guide canvas-snap-guide-v hidden" aria-hidden="true"></div>
             <div id="snap-guide-h" class="canvas-snap-guide canvas-snap-guide-h hidden" aria-hidden="true"></div>
             <article id="biodata-a4-sheet" class="biodata-a4-sheet is-inline-edit-enabled" aria-label="Live A4 Marriage Biodata Preview"></article>
@@ -766,7 +767,7 @@
           <!-- Column 1: Brand & Architecture -->
           <div class="cogify-footer-col">
             <div class="cogify-footer-brand-row">
-              <a href="https://cogify.me" class="cogify-main-brand" aria-label="COGIFY Technologies Home">
+              <a href="https://cogify.me" class="cogify-main-brand" title="COGIFY Technologies Home">
                 <span class="cogify-logo-box">
                   <img src="/brand/logo.webp" alt="COGIFY Technologies Logo" width="36" height="36" loading="lazy" decoding="async" class="cogify-logo-img logo-light" />
                   <img src="/brand/logo_white.webp" alt="COGIFY Technologies Dark Logo" width="36" height="36" loading="lazy" decoding="async" class="cogify-logo-img logo-dark" />
@@ -845,7 +846,7 @@
             &copy; 2026 COGIFY Technologies (<a href="https://cogify.me" style="color: inherit">cogify.me</a>). All rights reserved. Free Marriage Biodata Maker Studio at biodata.cogify.me.
           </p>
           <div class="cogify-footer-bottom-right">
-            <button type="button" class="cogify-footer-theme-pill" id="btn-footer-theme-toggle" aria-label="Toggle Light or Dark Theme">
+            <button type="button" class="cogify-footer-theme-pill" id="btn-footer-theme-toggle" title="Toggle Light or Dark Theme">
               <span class="footer-theme-label" id="footer-theme-label">Dark Mode</span>
             </button>
             <span class="cogify-footer-tagline">Designed with precision • 100% Client-Side Privacy</span>

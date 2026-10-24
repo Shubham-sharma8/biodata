@@ -9,8 +9,8 @@
   --bg-subtle: #f4f4f5;
   --bg-elevated: #f8fafc;
   --text-main: #090d16;
-  --text-secondary: #4b5563;
-  --text-muted: #6b7280;
+  --text-secondary: #374151;
+  --text-muted: #4b5563;
   --border-color: #e4e4e7;
   --border-strong: #d4d4d8;
   --brand-primary: #8B1E2F;
@@ -40,8 +40,8 @@ html[data-theme='dark'] {
   --bg-subtle: #111827;
   --bg-elevated: #161f30;
   --text-main: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
   --border-color: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.16);
   --brand-primary: #e11d48;
@@ -734,7 +734,53 @@ html[data-theme='dark'] .cogify-theme-toggle-btn .theme-icon-moon {
 }
 
 .section-block.section-disabled {
-  opacity: 0.6;
+  opacity: 1;
+  background: #F8FAFC;
+  border-style: dashed;
+  border-color: #CBD5E1;
+}
+
+.section-block.section-disabled .section-block-header {
+  background: #F1F5F9;
+}
+
+.section-block.section-disabled .section-title-input {
+  color: #6E1523;
+}
+
+.section-block.section-disabled .field-label-input,
+.section-block.section-disabled .pill-add-btn,
+.section-block.section-disabled .btn-chip {
+  color: #334155;
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+}
+
+html.dark .section-block.section-disabled,
+html[data-theme='dark'] .section-block.section-disabled {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html.dark .section-block.section-disabled .section-block-header,
+html[data-theme='dark'] .section-block.section-disabled .section-block-header {
+  background: #1e293b;
+}
+
+html.dark .section-block.section-disabled .section-title-input,
+html[data-theme='dark'] .section-block.section-disabled .section-title-input {
+  color: #fda4af;
+}
+
+html.dark .section-block.section-disabled .field-label-input,
+html.dark .section-block.section-disabled .pill-add-btn,
+html.dark .section-block.section-disabled .btn-chip,
+html[data-theme='dark'] .section-block.section-disabled .field-label-input,
+html[data-theme='dark'] .section-block.section-disabled .pill-add-btn,
+html[data-theme='dark'] .section-block.section-disabled .btn-chip {
+  color: #e2e8f0;
+  background: #1e293b;
+  border-color: #475569;
 }
 
 .section-block-header {
@@ -798,7 +844,24 @@ html[data-theme='dark'] .cogify-theme-toggle-btn .theme-icon-moon {
 }
 
 .field-row.field-disabled {
-  opacity: 0.48;
+  opacity: 1;
+}
+
+.field-row.field-disabled .field-label-input,
+.field-row.field-disabled .text-input {
+  color: #334155;
+  background: #F1F5F9;
+  border-style: dashed;
+  border-color: #CBD5E1;
+}
+
+html.dark .field-row.field-disabled .field-label-input,
+html.dark .field-row.field-disabled .text-input,
+html[data-theme='dark'] .field-row.field-disabled .field-label-input,
+html[data-theme='dark'] .field-row.field-disabled .text-input {
+  color: #e2e8f0;
+  background: #1e293b;
+  border-color: #475569;
 }
 
 .field-label-input {
@@ -1214,6 +1277,7 @@ html[data-theme='dark'] .cogify-theme-toggle-btn .theme-icon-moon {
   gap: 7px;
   overflow-x: auto;
   padding-bottom: 4px;
+  min-height: 33px;
   scrollbar-width: thin;
   max-width: 100%;
   -webkit-overflow-scrolling: touch;
