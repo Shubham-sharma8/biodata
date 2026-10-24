@@ -228,6 +228,8 @@ export default {
           headers.set('X-Robots-Tag', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
           const canonicalHref = url.pathname === '/' ? `${SITE_ORIGIN}/` : `${SITE_ORIGIN}${url.pathname}`;
           headers.set('Link', `<${canonicalHref}>; rel="canonical"`);
+        } else if (/\.(webp|png|svg|jpg|jpeg|gif|ico|woff2?|ttf|css|js)$/i.test(url.pathname)) {
+          headers.set('Cache-Control', 'public, max-age=31536000, immutable');
         }
       }
       return new Response(assetRes.body, {
