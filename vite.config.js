@@ -213,7 +213,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    target: 'es2020',
+    target: 'es2022',
     chunkSizeWarningLimit: 800
   },
   server: {

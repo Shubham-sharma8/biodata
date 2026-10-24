@@ -491,17 +491,32 @@ function renderA4Sheet() {
   updatePreviewViewportScale();
 }
 
+let cachedViewportWidth = typeof window !== 'undefined' && window.innerWidth ? window.innerWidth : 1350;
+let cachedStageWidth = 0;
+
+function estimateStageWidthFromViewport(vw) {
+  const width = vw > 0 ? vw : 1350;
+  if (width <= 920) {
+    return Math.max(260, width - 24);
+  }
+  if (width <= 1180) {
+    return Math.round((width - 32 - 18) * 0.475);
+  }
+  const containerW = Math.min(width, 1540) - 48;
+  return Math.round((containerW - 24) * 0.475);
+}
+
 /**
  * Computes current scale factor for the 794px A4 sheet stage across desktop, compact windows, and mobile
+ * without triggering synchronous layout reflows after DOM writes.
  */
 function getCurrentCanvasScale() {
-  const stage = document.getElementById('a4-preview-stage');
   if (canvasZoomMode !== 'auto') {
     const parsed = parseFloat(canvasZoomMode);
     if (!Number.isNaN(parsed) && parsed > 0.2) return parsed;
   }
-  const viewportWidth = typeof window !== 'undefined' && window.innerWidth ? window.innerWidth : 1024;
-  const stageRectWidth = stage?.getBoundingClientRect?.().width || stage?.clientWidth || viewportWidth;
+  const viewportWidth = cachedViewportWidth || 1350;
+  const stageRectWidth = cachedStageWidth > 0 ? cachedStageWidth : estimateStageWidthFromViewport(viewportWidth);
   // Clamp stage width by viewportWidth so flex/grid overflow can never push scale off-screen
   const maxStageWidth = Math.max(260, viewportWidth - (viewportWidth <= 640 ? 16 : 32));
   const effectiveStageWidth = Math.min(stageRectWidth > 0 ? stageRectWidth : maxStageWidth, maxStageWidth);
@@ -522,10 +537,10 @@ function scaleModalA4Sheets() {
   const modalStageWrap = modalHolder?.parentElement || modalSheet?.parentElement;
 
   if (modalSheet && modalStageWrap && previewModal && !previewModal.classList.contains('hidden')) {
-    const wrapW = Math.max(240, (modalStageWrap.clientWidth || window.innerWidth || 800) - 24);
+    const wrapW = Math.max(240, (modalStageWrap.clientWidth || cachedViewportWidth || 800) - 24);
     const modalScale = Math.min(1, Math.max(0.28, wrapW / 794));
     const isTwoPage = modalSheet.classList.contains('biodata-sheet-two-page');
-    const naturalH = isTwoPage ? Math.max(modalSheet.offsetHeight || 2274, 2274) : 1123;
+    const naturalH = isTwoPage ? 2274 : 1123;
 
     if (modalHolder) {
       modalHolder.style.width = `${Math.round(794 * modalScale)}px`;
@@ -544,11 +559,11 @@ function scaleModalA4Sheets() {
       const sheetEl = viewportEl.querySelector('.biodata-a4-sheet');
       if (!sheetEl) return;
 
-      const rectW = viewportEl.getBoundingClientRect?.().width || viewportEl.clientWidth || 160;
+      const rectW = viewportEl.clientWidth || 160;
       const availableW = Math.max(115, rectW - 12);
       const cmpScale = Math.min(0.55, Math.max(0.135, availableW / 794));
       const isTwoPage = sheetEl.classList.contains('biodata-sheet-two-page');
-      const naturalH = isTwoPage ? Math.max(sheetEl.offsetHeight || 2274, 2274) : 1123;
+      const naturalH = isTwoPage ? 2274 : 1123;
 
       if (holderEl) {
         holderEl.style.width = `${Math.round(794 * cmpScale)}px`;
@@ -573,7 +588,7 @@ function updatePreviewViewportScale() {
   const tpl = getTemplateById(appState.templateId);
   const effectiveLayout = appState.formatting?.layoutOverride || tpl.layout;
   const pageCount = tpl.pageCount === 2 || effectiveLayout === 'two-page-comprehensive' ? 2 : 1;
-  const rawHeight = pageCount === 2 ? Math.max(sheetEl?.offsetHeight || 2274, 2274) : 1123;
+  const rawHeight = pageCount === 2 ? 2274 : 1123;
 
   const scale = getCurrentCanvasScale();
   const scaledWidth = Math.round(794 * scale);
@@ -586,7 +601,7 @@ function updatePreviewViewportScale() {
 
   if (sheetEl) {
     sheetEl.style.transformOrigin = 'top left';
-    sheetEl.style.transform = `scale(${scale})`;
+    sheetEl.style.transform = `scale(${scale.toFixed(4)})`;
   }
 
   scaleModalA4Sheets();
@@ -1131,25 +1146,28 @@ function renderQuickTemplateStrip() {
   const activeNameEl = document.getElementById('active-template-name');
   const currentTpl = getTemplateById(appState.templateId);
   if (activeNameEl && currentTpl) {
-    activeNameEl.textContent = `${currentTpl.name} (${currentTpl.subtitle})`;
+    activeNameEl.textContent = currentTpl.name;
   }
   if (!strip) return;
 
-  if (strip.children.length === TEMPLATES.length) {
+  const quickTemplates = TEMPLATES.slice(0, 24);
+  if (currentTpl && !quickTemplates.some((t) => t.id === currentTpl.id)) {
+    quickTemplates.unshift(currentTpl);
+  }
+
+  if (strip.children.length === quickTemplates.length) {
     strip.querySelectorAll('[data-select-tpl]').forEach((btn) => {
       btn.classList.toggle('active', btn.getAttribute('data-select-tpl') === appState.templateId);
     });
     return;
   }
 
-  strip.innerHTML = TEMPLATES.map((t) => {
-    const isActive = t.id === appState.templateId;
-    return `
-      <button type="button" class="template-mini-pill ${isActive ? 'active' : ''}" data-select-tpl="${escapeHtml(t.id)}">
-        <span class="swatch-dot" style="background:${t.primary};border-color:${t.secondary};"></span>
-        <span>${escapeHtml(t.name)}</span>
-      </button>`;
-  }).join('');
+  strip.innerHTML = quickTemplates
+    .map((t) => {
+      const isActive = t.id === appState.templateId;
+      return `<button type="button" class="template-mini-pill ${isActive ? 'active' : ''}" data-select-tpl="${escapeHtml(t.id)}"><span class="swatch-dot" style="background:${t.primary};border-color:${t.secondary};"></span><span>${escapeHtml(t.name)}</span></button>`;
+    })
+    .join('');
 }
 
 /**
@@ -2867,17 +2885,37 @@ function bindWorkspaceEvents() {
     });
   };
 
-  window.addEventListener('resize', schedulePreviewViewportScale, { passive: true });
+  window.addEventListener(
+    'resize',
+    () => {
+      cachedViewportWidth = window.innerWidth || 1350;
+      cachedStageWidth = estimateStageWidthFromViewport(cachedViewportWidth);
+      schedulePreviewViewportScale();
+    },
+    { passive: true }
+  );
   window.addEventListener('orientationchange', () => {
-    setTimeout(schedulePreviewViewportScale, 120);
+    setTimeout(() => {
+      cachedViewportWidth = window.innerWidth || 1350;
+      cachedStageWidth = estimateStageWidthFromViewport(cachedViewportWidth);
+      schedulePreviewViewportScale();
+    }, 120);
   });
 
   if (typeof ResizeObserver !== 'undefined') {
     const stageEl = document.getElementById('a4-preview-stage');
-    const wsEl = document.getElementById('workspace-container');
-    const ro = new ResizeObserver(schedulePreviewViewportScale);
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const inlineW =
+          entry.borderBoxSize?.[0]?.inlineSize ||
+          (entry.contentRect ? entry.contentRect.width + 26 : 0);
+        if (inlineW > 200 && Math.abs(inlineW - cachedStageWidth) > 18) {
+          cachedStageWidth = Math.round(inlineW);
+          schedulePreviewViewportScale();
+        }
+      }
+    });
     if (stageEl) ro.observe(stageEl);
-    if (wsEl) ro.observe(wsEl);
   }
 }
 
@@ -2885,6 +2923,11 @@ function bindWorkspaceEvents() {
  * Initialize Application on DOMContentLoaded
  */
 function initApp() {
+  if (typeof window !== 'undefined' && window.innerWidth) {
+    cachedViewportWidth = window.innerWidth;
+  }
+  cachedStageWidth = estimateStageWidthFromViewport(cachedViewportWidth);
+
   applySeoRouteContext({
     onSelectPreset: (presetId) => {
       const preset = COMMUNITY_PRESETS.find((p) => p.id === presetId);
@@ -2926,8 +2969,6 @@ function initApp() {
   } catch {
     // Ignore
   }
-  updatePreviewViewportScale();
-  requestAnimationFrame(updatePreviewViewportScale);
   bindWorkspaceEvents();
   bindCanvaCanvasInteractions();
 }

@@ -40,7 +40,24 @@ if (!fs.existsSync(baseIndexPath)) {
   process.exit(1);
 }
 
-const rawViteIndexHtml = fs.readFileSync(baseIndexPath, 'utf8');
+let rawViteIndexHtml = fs.readFileSync(baseIndexPath, 'utf8');
+
+// Inline compiled Vite stylesheet into <head> to eliminate render-blocking CSS requests
+// and flatten the critical network dependency tree.
+const cssLinkMatch = rawViteIndexHtml.match(
+  /<link\s+rel="stylesheet"[^>]*href="(\/assets\/[^"]+\.css)"[^>]*>/i
+);
+if (cssLinkMatch) {
+  const cssFilePath = path.join(distDir, cssLinkMatch[1].replace(/^\//, ''));
+  if (fs.existsSync(cssFilePath)) {
+    const compiledCss = fs.readFileSync(cssFilePath, 'utf8');
+    rawViteIndexHtml = rawViteIndexHtml.replace(
+      cssLinkMatch[0],
+      `<style id="studio-compiled-css">${compiledCss}</style>`
+    );
+    console.log(`[SEO SSR Pre-Renderer] Inlined ${cssLinkMatch[1]} (${compiledCss.length} bytes) to eliminate render-blocking CSS`);
+  }
+}
 
 function escapeHtml(str) {
   return String(str ?? '')
@@ -88,9 +105,11 @@ function buildRouteBiodataState({ presetId = 'hindu_bride', language = 'en', tem
 function renderSsrA4SheetArticle(state) {
   const tpl = getTemplateById(state.templateId);
   const rendered = buildBiodataSheetMarkup(state, tpl);
-  const styleStr = Object.entries(rendered.cssVars)
-    .map(([k, v]) => `${k}:${v}`)
-    .join(';');
+  const styleStr = [
+    ...Object.entries(rendered.cssVars).map(([k, v]) => `${k}:${v}`),
+    'transform-origin:top left',
+    'transform:scale(0.7343)'
+  ].join(';');
 
   return `<article id="biodata-a4-sheet" class="${escapeHtml(rendered.className)} is-inline-edit-enabled" data-page-count="${rendered.pageCount}" data-template-id="${escapeHtml(rendered.tpl.id)}" style="${escapeHtml(styleStr)}" aria-label="Live A4 Marriage Biodata Preview">${rendered.innerHtml}</article>`;
 }
@@ -129,6 +148,21 @@ function renderSsrEditorSections(state) {
     .join('');
 
   return `<div id="sections-editor-container" class="sections-editor-stack">${cardsHtml}</div>`;
+}
+
+function renderSsrQuickTemplateStrip(state) {
+  const currentTpl = getTemplateById(state.templateId);
+  const quickTemplates = TEMPLATES.slice(0, 24);
+  if (currentTpl && !quickTemplates.some((t) => t.id === currentTpl.id)) {
+    quickTemplates.unshift(currentTpl);
+  }
+  const pillsHtml = quickTemplates
+    .map((t) => {
+      const isActive = t.id === state.templateId;
+      return `<button type="button" class="template-mini-pill ${isActive ? 'active' : ''}" data-select-tpl="${escapeHtml(t.id)}"><span class="swatch-dot" style="background:${t.primary};border-color:${t.secondary};"></span><span>${escapeHtml(t.name)}</span></button>`;
+    })
+    .join('');
+  return `<div id="template-pills-scroll" class="template-pills-scroll">${pillsHtml}</div>`;
 }
 
 /**
@@ -498,6 +532,10 @@ const homeSsrHtml = rawViteIndexHtml
     renderSsrEditorSections(homeState)
   )
   .replace(
+    /<div id="template-pills-scroll" class="template-pills-scroll"><\/div>/i,
+    renderSsrQuickTemplateStrip(homeState)
+  )
+  .replace(
     /<article id="biodata-a4-sheet"[^>]*><\/article>/i,
     renderSsrA4SheetArticle(homeState)
   )
@@ -591,6 +629,10 @@ for (const route of SEO_LANDING_ROUTES) {
     .replace(
       /<div id="sections-editor-container" class="sections-editor-stack"><\/div>/i,
       renderSsrEditorSections(routeState)
+    )
+    .replace(
+      /<div id="template-pills-scroll" class="template-pills-scroll"><\/div>/i,
+      renderSsrQuickTemplateStrip(routeState)
     )
     .replace(
       /<article id="biodata-a4-sheet"[^>]*><\/article>/i,

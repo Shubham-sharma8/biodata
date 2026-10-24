@@ -832,6 +832,57 @@ export function buildBiodataSheetMarkup(state, templateOverride = null) {
     .filter(Boolean)
     .join(' ');
 
+  // Deterministic Single-Page Auto-Fit Solver (zero forced reflow; identical on SSR & client)
+  let effectiveFontScale = userFontScale;
+  let effectiveRowGap = 6.5 * userLineSpacing;
+  let effectiveSecGap = 14.5 * userLineSpacing;
+
+  if (pageCount === 1 && fmt.autoFitSinglePage !== false) {
+    const visibleSectionCount = activeSections.length;
+    const totalVisibleFields = activeSections.reduce(
+      (acc, s) => acc + (s.fields ? s.fields.length : 0),
+      0
+    );
+    const longFieldLines = activeSections.reduce(
+      (acc, s) =>
+        acc +
+        (s.fields || []).reduce(
+          (fAcc, f) => fAcc + (String(f?.value || '').length > 52 ? 1 : 0),
+          0
+        ),
+      0
+    );
+    const hasKundaliBlock =
+      Boolean(safeState.kundali?.enabled) || layout === 'kundali-horoscope-focus';
+    const isSingleColumnLayout =
+      layout === 'classic' ||
+      layout === 'minimal-editorial' ||
+      layout === 'horizontal-bands' ||
+      layout === 'boxed-cards' ||
+      layout === 'royal-darbar-arch' ||
+      layout === 'heritage-scroll-parchment' ||
+      layout === 'centered-imperial-crest';
+
+    const estimatedContentHeight =
+      150 +
+      visibleSectionCount * (34 + effectiveSecGap) +
+      (isSingleColumnLayout ? totalVisibleFields : Math.ceil(totalVisibleFields * 0.68)) *
+        (22 * userFontScale + effectiveRowGap) +
+      longFieldLines * 16 +
+      (hasKundaliBlock ? 175 : 0);
+
+    const maxInnerHeight = 1123 - padV * 2;
+    if (estimatedContentHeight > maxInnerHeight) {
+      const ratio = Math.max(
+        0.72,
+        Math.min(0.97, (maxInnerHeight / estimatedContentHeight) * 0.98)
+      );
+      effectiveFontScale = Number(Math.max(0.72, userFontScale * ratio).toFixed(2));
+      effectiveRowGap = Number(Math.max(3, effectiveRowGap * ratio).toFixed(1));
+      effectiveSecGap = Number(Math.max(7, effectiveSecGap * ratio).toFixed(1));
+    }
+  }
+
   return {
     tpl,
     className,
@@ -849,14 +900,14 @@ export function buildBiodataSheetMarkup(state, templateOverride = null) {
       '--sheet-text': textColor,
       '--sheet-muted': tpl.muted,
       '--sheet-padding': `${padV}px ${padH}px`,
-      '--sheet-font-scale': String(userFontScale),
-      '--sheet-row-gap': `${(6.5 * userLineSpacing).toFixed(1)}px`,
-      '--sheet-sec-gap': `${(14.5 * userLineSpacing).toFixed(1)}px`,
+      '--sheet-font-scale': String(effectiveFontScale),
+      '--sheet-row-gap': `${effectiveRowGap.toFixed(1)}px`,
+      '--sheet-sec-gap': `${effectiveSecGap.toFixed(1)}px`,
       '--sheet-label-width': `${labelWidthPct}%`
     },
     padV,
     padH,
-    userFontScale,
+    userFontScale: effectiveFontScale,
     userLineSpacing,
     innerHtml,
     innerHTML: innerHtml
@@ -864,7 +915,7 @@ export function buildBiodataSheetMarkup(state, templateOverride = null) {
 }
 
 /**
- * Renders the Biodata Sheet into a DOM element and runs the fast 2-pass Smart Auto-Fit solver
+ * Renders the Biodata Sheet into a DOM element without synchronous layout reads (zero forced reflow)
  */
 export function renderSheetIntoElement(sheetEl, state, templateOverride = null) {
   if (!sheetEl) return null;
@@ -880,31 +931,6 @@ export function renderSheetIntoElement(sheetEl, state, templateOverride = null) 
     sheetEl.style.setProperty(k, v);
   }
   sheetEl.innerHTML = rendered.innerHtml;
-
-  // Fast 2-Pass Smart Single-Page Auto-Fit Solver when pageCount === 1
-  const fmt = state?.formatting || {};
-  if (rendered.pageCount === 1 && fmt.autoFitSinglePage !== false) {
-    const contentLayer = sheetEl.querySelector('#sheet-content-layer');
-    const maxInnerHeight = 1123 - rendered.padV * 2;
-    if (contentLayer && contentLayer.scrollHeight > maxInnerHeight) {
-      const ratio = Math.max(0.72, Math.min(0.97, (maxInnerHeight / contentLayer.scrollHeight) * 0.98));
-      let currentScale = Math.max(0.72, rendered.userFontScale * ratio);
-      let currentGap = Math.max(3, 6.5 * rendered.userLineSpacing * ratio);
-      let currentSecGap = Math.max(7, 14.5 * rendered.userLineSpacing * ratio);
-      sheetEl.style.setProperty('--sheet-font-scale', currentScale.toFixed(2));
-      sheetEl.style.setProperty('--sheet-row-gap', `${currentGap.toFixed(1)}px`);
-      sheetEl.style.setProperty('--sheet-sec-gap', `${currentSecGap.toFixed(1)}px`);
-
-      if (contentLayer.scrollHeight > maxInnerHeight && currentScale > 0.72) {
-        currentScale = Math.max(0.72, currentScale - 0.05);
-        currentGap = Math.max(3, currentGap - 0.8);
-        currentSecGap = Math.max(7, currentSecGap - 1.5);
-        sheetEl.style.setProperty('--sheet-font-scale', currentScale.toFixed(2));
-        sheetEl.style.setProperty('--sheet-row-gap', `${currentGap.toFixed(1)}px`);
-        sheetEl.style.setProperty('--sheet-sec-gap', `${currentSecGap.toFixed(1)}px`);
-      }
-    }
-  }
 
   return rendered;
 }
