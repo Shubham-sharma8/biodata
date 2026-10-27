@@ -2,39 +2,23 @@
 <?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
 <urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 >
   <!-- 1. Primary Global Homepage & Studio -->
   <url>
     <loc>https://biodata.cogify.me/</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-IN" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-US" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-GB" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-CA" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-AU" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-AE" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="en-SG" href="https://biodata.cogify.me/" />
-    <xhtml:link rel="alternate" hreflang="hi" href="https://biodata.cogify.me/hindi-shadi-biodata" />
-    <xhtml:link rel="alternate" hreflang="mr" href="https://biodata.cogify.me/marathi-marriage-biodata" />
-    <xhtml:link rel="alternate" hreflang="gu" href="https://biodata.cogify.me/gujarati-marriage-biodata" />
-    <xhtml:link rel="alternate" hreflang="ta" href="https://biodata.cogify.me/tamil-marriage-biodata" />
-    <xhtml:link rel="alternate" hreflang="te" href="https://biodata.cogify.me/telugu-marriage-biodata" />
-    <xhtml:link rel="alternate" hreflang="bn" href="https://biodata.cogify.me/bengali-marriage-biodata" />
     <image:image>
       <image:loc>https://biodata.cogify.me/og-banner.webp</image:loc>
-      <image:title>Free Marriage Biodata Maker — Live A4 Preview, PDF, Word (.docx) &amp; HD PNG</image:title>
-      <image:caption>Create your Marriage Biodata online in 2 minutes with 242 free templates, Vedic Kundali studio, and zero watermarks at biodata.cogify.me.</image:caption>
+      <image:title>Free Marriage Biodata Maker — Live A4 Studio | COGIFY</image:title>
+      <image:caption>Create your marriage biodata online in 2 minutes. Pick from 242 Indian &amp; NRI templates, customize fields &amp; photo in browser, and download print-ready PDF.</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://biodata.cogify.me/og-banner.png</image:loc>
-      <image:title>Free Marriage Biodata Maker — Live A4 Preview, PDF, Word (.docx) &amp; HD PNG</image:title>
-      <image:caption>Create your Marriage Biodata online in 2 minutes with 242 free templates, Vedic Kundali studio, and zero watermarks at biodata.cogify.me.</image:caption>
+      <image:title>Free Marriage Biodata Maker — Live A4 Studio | COGIFY</image:title>
+      <image:caption>Create your marriage biodata online in 2 minutes. Pick from 242 Indian &amp; NRI templates, customize fields &amp; photo in browser, and download print-ready PDF.</image:caption>
     </image:image>
     <image:image>
       <image:loc>https://biodata.cogify.me/screenshots/exported-a4-biodata-sample.webp</image:loc>
@@ -51,7 +35,7 @@
   <!-- 2. Community & Religious Marriage Biodata Landing Pages -->
   <url>
     <loc>https://biodata.cogify.me/hindu-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -62,7 +46,7 @@
 
   <url>
     <loc>https://biodata.cogify.me/muslim-nikah-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
     <image:image>
@@ -73,21 +57,21 @@
 
   <url>
     <loc>https://biodata.cogify.me/sikh-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/christian-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/jain-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
@@ -95,42 +79,42 @@
   <!-- 3. Regional Language Marriage Biodata Landing Pages -->
   <url>
     <loc>https://biodata.cogify.me/marathi-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/gujarati-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/hindi-shadi-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/tamil-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/telugu-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/bengali-marriage-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
@@ -138,28 +122,28 @@
   <!-- 4. High-Intent Format & Feature Landing Pages -->
   <url>
     <loc>https://biodata.cogify.me/nri-executive-biodata</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.92</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/biodata-for-marriage-pdf</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/biodata-word-format</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
 
   <url>
     <loc>https://biodata.cogify.me/whatsapp-biodata-maker</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-04-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>

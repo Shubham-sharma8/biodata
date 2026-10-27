@@ -205,10 +205,10 @@ function renderSsrTemplateGalleryGrid(state, preferredCategory = 'all') {
  */
 function buildJsonLdGraph(route = null) {
   const canonicalUrl = route ? `${SITE_ORIGIN}${route.path}` : `${SITE_ORIGIN}/`;
-  const pageTitle = route ? route.title : 'Free Marriage Biodata Maker — Live A4 Preview, Download PDF, Word (.docx) & HD Image | Cogify';
+  const pageTitle = route ? route.title : 'Free Marriage Biodata Maker — Live A4 Studio | COGIFY';
   const pageDesc = route
     ? route.description
-    : 'Create a print-ready A4 Marriage Biodata online in 2 minutes at biodata.cogify.me. 100% Free forever, no signup, no watermark. 242 Hindu, Muslim Nikah, Sikh, Christian, Jain, Marathi, Gujarati, Tamil & Modern templates, 9 languages, automatic age calculation, and instant PDF, Editable Word (.docx) & HD PNG downloads.';
+    : 'Create your marriage biodata online in 2 minutes. Pick from 242 Indian and NRI templates, customize fields and photo in browser, and download print-ready PDF.';
 
   const breadcrumbItems = [
     {
@@ -295,6 +295,7 @@ function buildJsonLdGraph(route = null) {
         sameAs: [
           'https://cogify.me',
           SITE_ORIGIN,
+          'https://ssb.cogify.me',
           'https://github.com/Shubham-sharma8/biodata'
         ]
       },
@@ -305,7 +306,7 @@ function buildJsonLdGraph(route = null) {
         jobTitle: AUTHOR_PROFILE.role,
         url: AUTHOR_PROFILE.url,
         worksFor: { '@id': 'https://cogify.me/#organization' },
-        sameAs: ['https://cogify.me', AUTHOR_PROFILE.github],
+        sameAs: ['https://cogify.me', 'https://ssb.cogify.me', AUTHOR_PROFILE.github],
         knowsAbout: [
           'Indian Matrimonial Traditions',
           'Vedic Kundali & Horoscope Typography',
@@ -334,8 +335,8 @@ function buildJsonLdGraph(route = null) {
           name: AUTHOR_PROFILE.reviewedBy,
           url: 'https://cogify.me'
         },
-        datePublished: AUTHOR_PROFILE.publishedDate,
-        dateModified: AUTHOR_PROFILE.modifiedDate,
+        datePublished: AUTHOR_PROFILE.datePublished,
+        dateModified: AUTHOR_PROFILE.dateModified,
         breadcrumb: { '@id': `${canonicalUrl}#breadcrumb` },
         primaryImageOfPage: {
           '@type': 'ImageObject',
@@ -362,13 +363,6 @@ function buildJsonLdGraph(route = null) {
           price: '0',
           priceCurrency: 'INR',
           availability: 'https://schema.org/InStock'
-        },
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.9',
-          ratingCount: '2480',
-          bestRating: '5',
-          worstRating: '1'
         }
       },
       {
@@ -593,6 +587,10 @@ for (const route of SEO_LANDING_ROUTES) {
     .replace(
       /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i,
       `<meta property="og:description" content="${safeDesc}" />`
+    )
+    .replace(
+      /<meta\s+property="og:locale"\s+content="[^"]*"\s*\/?>/i,
+      `<meta property="og:locale" content="${escapeHtml(route.locale || 'en_IN')}" />`
     )
     .replace(
       /<meta\s+name="twitter:url"\s+content="[^"]*"\s*\/?>/i,

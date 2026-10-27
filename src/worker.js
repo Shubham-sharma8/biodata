@@ -37,6 +37,26 @@ const CORS_HEADERS = {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    const isLocalHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+
+    // -------------------------------------------------------------------------
+    // Enforce HTTP-to-HTTPS & Canonical Host (`www` -> apex) Redirects
+    // -------------------------------------------------------------------------
+    if (
+      !isLocalHost &&
+      (url.protocol === 'http:' || forwardedProto === 'http' || url.hostname === 'www.biodata.cogify.me')
+    ) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          Location: `https://biodata.cogify.me${url.pathname}${url.search}`,
+          'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+          'X-Content-Type-Options': 'nosniff',
+          'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+      });
+    }
 
     // -------------------------------------------------------------------------
     // API Endpoints (`/api/*`) — Tagged `noindex, nofollow`

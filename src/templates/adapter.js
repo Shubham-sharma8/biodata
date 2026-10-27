@@ -443,7 +443,7 @@ export function renderLiveTemplateMiniPreview(tpl, previewData = {}) {
   const photoMarkup = hasPhoto
     ? `<div class="mini-photo-box ${photoShapeClass}" style="border-color:${tpl.secondary};background:${tpl.primary}18">
         ${previewData.photoDataUrl
-          ? `<img src="${previewData.photoDataUrl}" alt="" loading="lazy" />`
+          ? `<img src="${previewData.photoDataUrl}" alt="${escapeMiniHtml(tpl.name)} marriage biodata template preview" loading="lazy" />`
           : `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="${tpl.primary}" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 14.5-4 16 0"/></svg>`}
       </div>`
     : '';
