@@ -10,7 +10,7 @@
 - **Full Technical & Cultural Reference**: https://biodata.cogify.me/llms-full.txt
 
 ## Key Capabilities & Differentiators
-- **42 Hand-Crafted A4 Templates & 14 Layout Engines**: Royal Traditional, Floral & Festive, Modern Executive, Minimalist Editorial, and Community Classics (Hindu, Muslim Nikah, Sikh Anand Karaj, Christian, Jain, Buddhist, NRI, Gujarati, Marathi, Tamil, Telugu, Bengali).
+- **242 Hand-Crafted A4 Templates & 14 Layout Engines**: Royal Traditional, Floral & Festive, Modern Executive, Minimalist Editorial, and Community Classics (Hindu, Muslim Nikah, Sikh Anand Karaj, Christian, Jain, Buddhist, NRI, Gujarati, Marathi, Tamil, Telugu, Bengali).
 - **100% Client-Side Privacy (Zero Server Uploads)**: All personal details, horoscopes, family backgrounds, contact numbers, and portrait photos remain strictly inside the user's browser (`localStorage`, encrypted cookies, and local Canvas/SVG rendering).
 - **True 1:1 A4 WYSIWYG Print & Export Engine**: Instant export to 300-DPI Print PDF, High-Resolution PNG, Editable Microsoft Word (`.docx`), WhatsApp Text Summary, and JSON Backup/Restore.
 - **Smart Astrological & Cultural Presets**: Built-in Day/Month/Year DOB selector with automatic years-only age calculation, Rashi/Nakshatra/Gothra/Manglik dropdowns, 14 sacred religious invocations & symbols, and 9 Indian & international language label packs (English, Hindi, Marathi, Gujarati, Tamil, Telugu, Bengali, Punjabi, Urdu).
