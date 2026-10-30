@@ -15,7 +15,7 @@ export const AUTHOR_PROFILE = {
     'Full-Stack Systems Architect specializing in privacy-first client-side document engines, Indic typography, and cultural matrimonial formats across 9 languages.',
   reviewedBy: 'Cogify Cultural & Vedic Matrimonial Advisory Panel',
   datePublished: '2025-01-15',
-  dateModified: '2026-04-20'
+  dateModified: '2026-10-30'
 };
 
 export const SEO_LANDING_ROUTES = [
